@@ -1,0 +1,282 @@
+PARSER_BEGIN(test)
+import java.io.*;
+class test 
+{
+	public static void main( String[] args )throws ParseException, Exception
+	{
+		try
+		{		
+     		test analizador = new test( System.in ) ;
+			analizador.Programa();
+			System.out.println("\tAnalizador ha terminado.");			
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("\tAnalizador ha terminado.");
+		}
+	}
+}
+PARSER_END(test)
+
+//palabras reservadas
+TOKEN:
+{
+	<VOID: "void"> 
+	| <PROGRAM: "Program" >  
+	| <IF: "if" > 
+	| <ELSE: "else" > 
+	| <WHILE: "while" > 
+	| <PRINT: "print" > 
+	| <INT: "int" > 
+	| <FLOAT: "float" > 
+	| <CHAR: "char" >
+	| <VECTOR: "vector" >
+	| <RETURN: "return" >
+	| <EMPTY: "">
+}
+
+TOKEN: 
+{
+	<cte_i: ( ["0"-"9"] )+ >
+	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >
+	|< ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
+	| <cte_c : "'"["a"-"z","A"-"Z","0"-"9"]"'" >
+	 
+}
+
+SKIP: 
+{ 
+	" "|"\n" | "\r" | "\r\n" | "\t"
+}
+
+void Programa():
+{}
+{
+	<PROGRAM> <ID> <";"> Programa_AUX()
+}
+void Programa_AUX():
+{}
+{
+	VARS() | Programa_AUX2()
+}
+
+void Programa_AUX2():
+{}
+{
+	MODULO() BLOQUE() | BLOQUE()
+}
+
+void BLOQUE():
+{}
+{
+	<"{">BLOQUE_AUX()<"}"> | <EMPTY>
+}
+
+void BLOQUE_AUX():
+{}
+{
+	ESTATUTO() BLOQUE_AUX()
+}
+
+void ESTATUTO():
+{}
+{
+	ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
+
+}
+
+void MEGAEXPRESION():
+{}
+{ 
+	EXPRESION() MEGAEXPRESION_AUX() EXPRESION()
+}  
+
+void MEGAEXPRESION_AUX():
+{}
+{ 
+	<"&&"> | <"&&">
+}  
+
+void EXPRESION():
+{}
+{  
+	EXP() EXPRESION_AUX() EXP()
+}                                                  
+
+void EXPRESION_AUX():
+{}
+{  
+	<"<"> | <">"> | <"!=">
+}
+
+void EXP():
+{}
+{  
+	TERMINO() EXP_AUX() EXP() | TERMINO()
+}
+
+void EXP_AUX():
+{}
+{  
+	<"+"> | <"-">
+}
+
+void TERMINO():
+{}
+{
+	FACTOR() TERMINO_AUX() TERMINO() | FACTOR()
+}
+
+void TERMINO_AUX():
+{}
+{
+	<"*"> | <"/">
+}
+
+void FACTOR():
+{}
+{
+	<"("> MEGAEXPRESION() <")"> | FACTOR_AUX() VARCTE() | VARCTE()
+}
+
+void FACTOR_AUX():
+{}
+{
+	<"+"> | <"-">
+}
+
+void VARCTE():
+{}
+{
+	<ID> | <cte_i> | <cte_f> | <ID> <"["> EXP() <"]">
+}
+
+void CONDICION():
+{}
+{
+	<IF> <"("> MEGAEXPRESION() <")"> CONDICION_AUX() <";">
+}
+
+void CONDICION_AUX():
+{}
+{
+	BLOQUE() | <ELSE> CONDICION()
+}
+
+void CICLO():
+{}
+{
+	<WHILE> <"("> MEGAEXPRESION() <")"> BLOQUE() 
+}
+
+void VARS():
+{}
+{
+	TIPO() VARS_AUX1() <";"> | TIPO() VARS_AUX2() <";">
+}
+
+void VARS_AUX1():
+{}
+{
+	<VECTOR> <ID> <"["> EXP() <"]"> VARS_AUX1_1()
+}
+
+void VARS_AUX1_1():
+{}
+{
+	<"="> <"{"> VARS_AUX1_2() <"}"> | <EMPTY>
+}
+void VARS_AUX1_2():
+{}
+{
+	VARS_AUX2_2() | VARS_AUX2_2() <","> VARS_AUX1_2()
+}
+
+void VARS_AUX2():
+{}
+{
+	VARS_AUX2_1() <","> VARS_AUX2() | VARS_AUX2_1()
+}
+
+void VARS_AUX2_1():
+{}
+{
+	<ID> | <ID> <"="> VARS_AUX2_2()
+}
+
+void VARS_AUX2_2():
+{}
+{
+	<cte_i> | <cte_f> | <cte_c>
+}
+
+void MODULO():
+{}
+{
+	MODULO_TIPO() <ID> <"("> MODULO_AUX() <")"> BLOQUE()
+}
+
+void MODULO_TIPO():
+{}
+{
+	<VOID> | <INT> | <FLOAT> | <CHAR> | <VECTOR>
+}
+
+void MODULO_AUX():
+{}
+{
+	TIPO() <ID> | TIPO() <ID> <","> MODULO_AUX()
+}
+
+void RETORNO():
+{}
+{
+	<RETURN> VARCTE() <";"> | <RETURN> EXP() <";"> 
+}
+
+void LLAMADA_FUNC():
+{}
+{
+	<ID> <"("> LLAMADA_AUX() <")"> <";">
+}
+
+void LLAMADA_AUX():
+{}
+{
+	LLAMADA_PARAM() | LLAMADA_PARAM() <","> LLAMADA_AUX() | <EMPTY>
+}
+
+void LLAMADA_PARAM():
+{}
+{
+	<ID> | EXP()
+}
+
+
+
+void TIPO():
+{}
+{
+	<INT> | <FLOAT> | <CHAR> 
+}
+
+void ASIGNACION():
+{}
+{
+	<ID> <"="> EXPRESION() <";">
+}
+
+void ESCRITURA():
+{}
+{
+	<PRINT> <"("> ESCRITURA_AUX() <")"> <";">
+}
+
+void ESCRITURA_AUX():
+{}
+{
+	EXPRESION() | EXPRESION() <"."> ESCRITURA_AUX()
+}
+
+
