@@ -8,12 +8,12 @@ class test
 		{		
      		test analizador = new test( System.in ) ;
 			analizador.Programa();
-			System.out.println("\tAnalizador ha terminado.");			
+			System.out.println("\tSuccessfully compiled");
 		}
 		catch(ParseException e)
 		{
 			System.out.println(e.getMessage());
-			System.out.println("\tAnalizador ha terminado.");
+			System.out.println("\tErrors found");
 		}
 	}
 }
@@ -22,86 +22,85 @@ PARSER_END(test)
 //palabras reservadas
 TOKEN:
 {
-	<VOID: "void"> 
-	| <PROGRAM: "Program" >  
-	| <IF: "if" > 
-	| <ELSE: "else" > 
-	| <WHILE: "while" > 
-	| <PRINT: "print" > 
-	| <INT: "int" > 
-	| <FLOAT: "float" > 
+	<PROGRAM: "Program" >
+	| <IF: "if" >
+	| <ELSE: "else" >
+	| <WHILE: "while" >
+	| <PRINT: "print" >
+	| <INT: "int" >
+	| <FLOAT: "float" >
 	| <CHAR: "char" >
 	| <VECTOR: "vector" >
 	| <RETURN: "return" >
+	| <VOID: "void">
+	| <LBRACKET: "[">
+	| <RBRACKET: "]">
+	| <LKEY: "{">
+    | <RKEY: "}">
+	| <SEMICOLON: ";">
 	| <EMPTY: "">
 }
 
-TOKEN: 
+TOKEN:
 {
 	<cte_i: ( ["0"-"9"] )+ >
 	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >
 	|< ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
-	| <cte_c : "'"["a"-"z","A"-"Z","0"-"9"]"'" >
+	|<cte_c :  ["a"-"z","A"-"Z","0"-"9","#"-"%"] >
 	 
 }
 
-SKIP: 
-{ 
+SKIP:
+{
 	" "|"\n" | "\r" | "\r\n" | "\t"
 }
 
 void Programa():
 {}
 {
-	<PROGRAM> <ID> <";"> Programa_AUX()
+	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>
 }
 void Programa_AUX():
 {}
 {
-	VARS() | Programa_AUX2()
-}
-
-void Programa_AUX2():
-{}
-{
-	MODULO() BLOQUE() | BLOQUE()
+   (LOOKAHEAD(3) VARS())* (MODULO())* BLOQUE()
 }
 
 void BLOQUE():
 {}
 {
-	<"{">BLOQUE_AUX()<"}"> | <EMPTY>
+	(<LKEY> BLOQUE_AUX() <RKEY>)?
 }
 
 void BLOQUE_AUX():
 {}
 {
-	ESTATUTO() BLOQUE_AUX()
+	ESTATUTO() (BLOQUE_AUX())? | <EMPTY>
 }
 
 void ESTATUTO():
 {}
 {
-	ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
+	LOOKAHEAD(3) VARS() | LOOKAHEAD(3) ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
 
 }
 
 void MEGAEXPRESION():
 {}
-{ 
-	EXPRESION() MEGAEXPRESION_AUX() EXPRESION()
+{
+	EXPRESION() MEGAEXPRESION_AUX()
 }  
 
 void MEGAEXPRESION_AUX():
 {}
 { 
-	<"&&"> | <"&&">
+	((<"&&"> | <"||">) EXPRESION())?
 }  
 
 void EXPRESION():
 {}
-{  
-	EXP() EXPRESION_AUX() EXP()
+{
+	EXP() (EXPRESION_AUX() EXP())?
 }                                                  
 
 void EXPRESION_AUX():
@@ -112,8 +111,8 @@ void EXPRESION_AUX():
 
 void EXP():
 {}
-{  
-	TERMINO() EXP_AUX() EXP() | TERMINO()
+{
+	TERMINO() (LOOKAHEAD(3) EXP_AUX() EXP())?
 }
 
 void EXP_AUX():
@@ -125,7 +124,7 @@ void EXP_AUX():
 void TERMINO():
 {}
 {
-	FACTOR() TERMINO_AUX() TERMINO() | FACTOR()
+	FACTOR() (LOOKAHEAD(3) TERMINO_AUX() TERMINO())?
 }
 
 void TERMINO_AUX():
@@ -137,7 +136,7 @@ void TERMINO_AUX():
 void FACTOR():
 {}
 {
-	<"("> MEGAEXPRESION() <")"> | FACTOR_AUX() VARCTE() | VARCTE()
+	<"("> MEGAEXPRESION() <")"> | (FACTOR_AUX())? VARCTE()
 }
 
 void FACTOR_AUX():
@@ -149,19 +148,19 @@ void FACTOR_AUX():
 void VARCTE():
 {}
 {
-	<ID> | <cte_i> | <cte_f> | <ID> <"["> EXP() <"]">
+	<ID> (<LBRACKET> EXP() <RBRACKET>)? | <cte_i> | <cte_f>
 }
 
 void CONDICION():
 {}
 {
-	<IF> <"("> MEGAEXPRESION() <")"> CONDICION_AUX() <";">
+	<IF> <"("> MEGAEXPRESION() <")"> BLOQUE() CONDICION_AUX()
 }
 
 void CONDICION_AUX():
 {}
 {
-	BLOQUE() | <ELSE> CONDICION()
+	(<ELSE> (CONDICION() | BLOQUE()))?
 }
 
 void CICLO():
@@ -173,42 +172,31 @@ void CICLO():
 void VARS():
 {}
 {
-	TIPO() VARS_AUX1() <";"> | TIPO() VARS_AUX2() <";">
+	TIPO() (VARS_AUX1() | VARS_AUX2()) <SEMICOLON>
 }
 
 void VARS_AUX1():
 {}
 {
-	<VECTOR> <ID> <"["> EXP() <"]"> VARS_AUX1_1()
+	<VECTOR> <ID> <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?
 }
 
 void VARS_AUX1_1():
 {}
 {
-	<"="> <"{"> VARS_AUX1_2() <"}"> | <EMPTY>
-}
-void VARS_AUX1_2():
-{}
-{
-	VARS_AUX2_2() | VARS_AUX2_2() <","> VARS_AUX1_2()
+	VARS_AUX2_1() (<","> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?)?
 }
 
 void VARS_AUX2():
 {}
 {
-	VARS_AUX2_1() <","> VARS_AUX2() | VARS_AUX2_1()
+	<ID> (<"="> VARS_AUX2_1())? (<","> VARS_AUX2())?
 }
 
 void VARS_AUX2_1():
 {}
 {
-	<ID> | <ID> <"="> VARS_AUX2_2()
-}
-
-void VARS_AUX2_2():
-{}
-{
-	<cte_i> | <cte_f> | <cte_c>
+	<cte_i> | <cte_f> | <cte_c> | <ID>
 }
 
 void MODULO():
@@ -226,34 +214,32 @@ void MODULO_TIPO():
 void MODULO_AUX():
 {}
 {
-	TIPO() <ID> | TIPO() <ID> <","> MODULO_AUX()
+	(TIPO() <ID> (<","> MODULO_AUX())?)?
 }
 
 void RETORNO():
 {}
 {
-	<RETURN> VARCTE() <";"> | <RETURN> EXP() <";"> 
+	<RETURN> (LOOKAHEAD(3) VARCTE() | EXP()) <SEMICOLON>
 }
 
 void LLAMADA_FUNC():
 {}
 {
-	<ID> <"("> LLAMADA_AUX() <")"> <";">
+	<ID> <"("> LLAMADA_AUX() <")"> <SEMICOLON>
 }
 
 void LLAMADA_AUX():
 {}
 {
-	LLAMADA_PARAM() | LLAMADA_PARAM() <","> LLAMADA_AUX() | <EMPTY>
+	(LLAMADA_PARAM() (<","> LLAMADA_AUX())?)?
 }
 
 void LLAMADA_PARAM():
 {}
 {
-	<ID> | EXP()
+	LOOKAHEAD(3) <ID> | EXP()
 }
-
-
 
 void TIPO():
 {}
@@ -264,19 +250,17 @@ void TIPO():
 void ASIGNACION():
 {}
 {
-	<ID> <"="> EXPRESION() <";">
+	<ID> <"="> EXP() <SEMICOLON>
 }
 
 void ESCRITURA():
 {}
 {
-	<PRINT> <"("> ESCRITURA_AUX() <")"> <";">
+	<PRINT> <"("> ESCRITURA_AUX() <")"> <SEMICOLON>
 }
 
 void ESCRITURA_AUX():
 {}
 {
-	EXPRESION() | EXPRESION() <"."> ESCRITURA_AUX()
+	EXP() (ESCRITURA_AUX())? | <"\""> (<cte_c> | VARCTE())* <"\"">
 }
-
-

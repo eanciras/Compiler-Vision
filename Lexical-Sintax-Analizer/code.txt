@@ -1,1 +1,19 @@
-2 + 3
+Program test;
+void modulo1(){
+    if(a+b-c/d*d < 3){
+        print ("Parangarituquirimicuaro jajajaja");
+    }else if (a){
+        modulo1();
+    }else{
+        float var1 = 1, var2, var3, var4 = var2;
+        int vector Vector1[3];
+        while(A<3){
+            var4 = var2+A;
+            A = A+1;
+        }
+    }
+}
+int main(){
+    print(3);
+    return 0;
+}
