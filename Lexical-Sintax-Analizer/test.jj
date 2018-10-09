@@ -27,9 +27,9 @@ TOKEN:
 	| <ELSE: "else" >
 	| <WHILE: "while" >
 	| <PRINT: "print" >
-	| <INT: "int" >
-	| <FLOAT: "float" >
-	| <CHAR: "char" >
+	| <INT: "int" >//6
+	| <FLOAT: "float" >//7
+	| <CHAR: "char" >//8
 	| <VECTOR: "vector" >
 	| <RETURN: "return" >
 	| <VOID: "void">
@@ -43,10 +43,10 @@ TOKEN:
 
 TOKEN:
 {
-	<cte_i: ( ["0"-"9"] )+ >
-	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >
-	|< ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >
-	|<cte_c :  ["a"-"z","A"-"Z","0"-"9","#"-"%"] >
+	<cte_i: ( ["0"-"9"] )+ > //18
+	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >//19
+	|< ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )* >//20
+	|<cte_c :  ["a"-"z","A"-"Z","0"-"9","#"-"%"] >//21
 	 
 }
 
@@ -56,7 +56,9 @@ SKIP:
 }
 
 void Programa():
-{}
+{
+	ValidadorSemantico.SetTables();	
+}
 {
 	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>
 }
@@ -170,9 +172,14 @@ void CICLO():
 }
 
 void VARS():
-{}
 {
-	TIPO() (VARS_AUX1() | VARS_AUX2()) <SEMICOLON>
+	int iTokenK;
+}
+{
+	TIPO(){
+		iTokenK = token.kind;
+	}
+	 (VARS_AUX1() | VARS_AUX2(iTokenK)) <SEMICOLON>
 }
 
 void VARS_AUX1():
@@ -187,10 +194,14 @@ void VARS_AUX1_1():
 	VARS_AUX2_1() (<","> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?)?
 }
 
-void VARS_AUX2():
-{}
+void VARS_AUX2(int iTokenK):
 {
-	<ID> (<"="> VARS_AUX2_1())? (<","> VARS_AUX2())?
+	Token var;	
+}
+{
+	var = <ID>{		
+			ValidadorSemantico.InsertarSimbolo(var, iTokenK);
+		} (<"="> VARS_AUX2_1())? (<","> VARS_AUX2(iTokenK))?
 }
 
 void VARS_AUX2_1():
@@ -248,9 +259,35 @@ void TIPO():
 }
 
 void ASIGNACION():
-{}
 {
-	<ID> <"="> EXP() <SEMICOLON>
+	Token v1;
+	Token v2;
+	Token v3;
+	int aux;
+	String res;
+	boolean imp = false;
+}
+{
+	v1 = <ID> <"="> EXP(){  
+    v2 = token;
+    System.out.println(v1);
+	res = ValidadorSemantico.checkAsing(v1, v2);
+	
+	if(res != " ")
+	{
+		System.out.println(res);
+		imp = true;
+	}
+  }{  
+    v2 = token;
+	res = ValidadorSemantico.checkAsing(v1, v2);
+	
+	if(res != " ")
+	{
+		System.out.println(res);
+		imp = true;
+	}
+  } <SEMICOLON>
 }
 
 void ESCRITURA():
