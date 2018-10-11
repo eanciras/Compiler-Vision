@@ -1,7 +1,9 @@
 Program test;
 int main(){
-    char a;
+    int vector c[4] = {10.1, 2.2};
+    int a, b = 3;
     a = 20;
+    a = b;
     print(3);
     return 0;
 }

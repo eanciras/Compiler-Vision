@@ -71,7 +71,7 @@ void Programa_AUX():
 void BLOQUE():
 {}
 {
-	(<LKEY> BLOQUE_AUX() <RKEY>)?
+	(LOOKAHEAD(2) <LKEY> BLOQUE_AUX() <RKEY>)?
 }
 
 void BLOQUE_AUX():
@@ -179,29 +179,59 @@ void VARS():
 	TIPO(){
 		iTokenK = token.kind;
 	}
-	 (VARS_AUX1() | VARS_AUX2(iTokenK)) <SEMICOLON>
+	 (VARS_AUX1(iTokenK) | VARS_AUX2(iTokenK)) <SEMICOLON>
 }
 
-void VARS_AUX1():
-{}
+void VARS_AUX1(int iTokenK):
 {
-	<VECTOR> <ID> <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?
+	Token tVar;
 }
-
-void VARS_AUX1_1():
-{}
 {
-	VARS_AUX2_1() (<","> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?)?
+	<VECTOR> tVar = <ID>{		
+			ValidadorSemantico.InsertarSimbolo(tVar, iTokenK);
+		}
+		 <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1(iTokenK,tVar) <RKEY>)?
 }
 
+void VARS_AUX1_1(int iTokenK, Token tVar):
+{
+	Token tVar2;
+	String res;	
+	boolean imp = false;
+	}
+{
+	VARS_AUX2_1(){  
+		tVar2 = token;
+		res = ValidadorSemantico.checkAsing(tVar, tVar2);
+		
+		if(res != " ")
+		{
+			System.out.println(res);
+			imp = true;
+		}
+	  }  (LOOKAHEAD(2) <","> VARS_AUX1_1(iTokenK,tVar))*
+}
 void VARS_AUX2(int iTokenK):
 {
-	Token var;	
+	Token tVar;
+	Token tVar2;
+	String res;	
+	boolean imp = false;	
 }
 {
-	var = <ID>{		
-			ValidadorSemantico.InsertarSimbolo(var, iTokenK);
-		} (<"="> VARS_AUX2_1())? (<","> VARS_AUX2(iTokenK))?
+	tVar = <ID>{		
+			ValidadorSemantico.InsertarSimbolo(tVar, iTokenK);
+		} (<"="> VARS_AUX2_1(){  
+		tVar2 = token;
+		res = ValidadorSemantico.checkAsing(tVar, tVar2);
+		
+		if(res != " ")
+		{
+			System.out.println(res);
+			imp = true;
+		}
+	  }
+	  )? (<","> VARS_AUX2(iTokenK))?
 }
 
 void VARS_AUX2_1():
@@ -270,7 +300,6 @@ void ASIGNACION():
 {
 	v1 = <ID> <"="> EXP(){  
     v2 = token;
-    System.out.println(v1);
 	res = ValidadorSemantico.checkAsing(v1, v2);
 	
 	if(res != " ")

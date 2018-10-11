@@ -9,37 +9,47 @@ public interface testConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int VOID = 1;
+  int PROGRAM = 1;
   /** RegularExpression Id. */
-  int PROGRAM = 2;
+  int IF = 2;
   /** RegularExpression Id. */
-  int IF = 3;
+  int ELSE = 3;
   /** RegularExpression Id. */
-  int ELSE = 4;
+  int WHILE = 4;
   /** RegularExpression Id. */
-  int WHILE = 5;
+  int PRINT = 5;
   /** RegularExpression Id. */
-  int PRINT = 6;
+  int INT = 6;
   /** RegularExpression Id. */
-  int INT = 7;
+  int FLOAT = 7;
   /** RegularExpression Id. */
-  int FLOAT = 8;
+  int CHAR = 8;
   /** RegularExpression Id. */
-  int CHAR = 9;
+  int VECTOR = 9;
   /** RegularExpression Id. */
-  int VECTOR = 10;
+  int RETURN = 10;
   /** RegularExpression Id. */
-  int RETURN = 11;
+  int VOID = 11;
   /** RegularExpression Id. */
-  int EMPTY = 12;
+  int LBRACKET = 12;
   /** RegularExpression Id. */
-  int cte_i = 13;
+  int RBRACKET = 13;
   /** RegularExpression Id. */
-  int cte_f = 14;
+  int LKEY = 14;
   /** RegularExpression Id. */
-  int ID = 15;
+  int RKEY = 15;
   /** RegularExpression Id. */
-  int cte_c = 16;
+  int SEMICOLON = 16;
+  /** RegularExpression Id. */
+  int EMPTY = 17;
+  /** RegularExpression Id. */
+  int cte_i = 18;
+  /** RegularExpression Id. */
+  int cte_f = 19;
+  /** RegularExpression Id. */
+  int ID = 20;
+  /** RegularExpression Id. */
+  int cte_c = 21;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -47,7 +57,6 @@ public interface testConstants {
   /** Literal token values. */
   String[] tokenImage = {
     "<EOF>",
-    "\"void\"",
     "\"Program\"",
     "\"if\"",
     "\"else\"",
@@ -58,6 +67,12 @@ public interface testConstants {
     "\"char\"",
     "\"vector\"",
     "\"return\"",
+    "\"void\"",
+    "\"[\"",
+    "\"]\"",
+    "\"{\"",
+    "\"}\"",
+    "\";\"",
     "\"\"",
     "<cte_i>",
     "<cte_f>",
@@ -68,10 +83,8 @@ public interface testConstants {
     "\"\\r\"",
     "\"\\r\\n\"",
     "\"\\t\"",
-    "\";\"",
-    "\"{\"",
-    "\"}\"",
     "\"&&\"",
+    "\"||\"",
     "\"<\"",
     "\">\"",
     "\"!=\"",
@@ -81,11 +94,9 @@ public interface testConstants {
     "\"/\"",
     "\"(\"",
     "\")\"",
-    "\"[\"",
-    "\"]\"",
     "\"=\"",
     "\",\"",
-    "\".\"",
+    "\"\\\"\"",
   };
 
 }
