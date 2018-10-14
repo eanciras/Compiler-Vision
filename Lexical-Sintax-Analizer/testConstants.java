@@ -50,6 +50,30 @@ public interface testConstants {
   int ID = 20;
   /** RegularExpression Id. */
   int cte_c = 21;
+  /** RegularExpression Id. */
+  int PLUS = 22;
+  /** RegularExpression Id. */
+  int MINUS = 23;
+  /** RegularExpression Id. */
+  int TIMES = 24;
+  /** RegularExpression Id. */
+  int DIVISION = 25;
+  /** RegularExpression Id. */
+  int EQ = 26;
+  /** RegularExpression Id. */
+  int LE = 27;
+  /** RegularExpression Id. */
+  int MN = 28;
+  /** RegularExpression Id. */
+  int GE = 29;
+  /** RegularExpression Id. */
+  int GR = 30;
+  /** RegularExpression Id. */
+  int NE = 31;
+  /** RegularExpression Id. */
+  int OR = 32;
+  /** RegularExpression Id. */
+  int AND = 33;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -78,20 +102,23 @@ public interface testConstants {
     "<cte_f>",
     "<ID>",
     "<cte_c>",
+    "\"+\"",
+    "\"-\"",
+    "\"*\"",
+    "\"/\"",
+    "\"==\"",
+    "\"<=\"",
+    "\"<\"",
+    "\">=\"",
+    "\">\"",
+    "\"!=\"",
+    "\"||\"",
+    "\"&&\"",
     "\" \"",
     "\"\\n\"",
     "\"\\r\"",
     "\"\\r\\n\"",
     "\"\\t\"",
-    "\"&&\"",
-    "\"||\"",
-    "\"<\"",
-    "\">\"",
-    "\"!=\"",
-    "\"+\"",
-    "\"-\"",
-    "\"*\"",
-    "\"/\"",
     "\"(\"",
     "\")\"",
     "\"=\"",

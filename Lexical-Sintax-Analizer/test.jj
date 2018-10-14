@@ -2,6 +2,7 @@ PARSER_BEGIN(test)
 import java.io.*;
 class test 
 {
+    public static TablaVariables globales = new TablaVariables();
 	public static void main( String[] args )throws ParseException, Exception
 	{
 		try
@@ -50,17 +51,36 @@ TOKEN:
 	 
 }
 
+TOKEN:
+{
+	<PLUS : "+" >//22
+	| <MINUS:"-">//23
+	| <TIMES:"*">//24
+	| <DIVISION:"/">//25
+
+}
+
+TOKEN:
+{
+	  <EQ: "==" >//26
+	| <LE: "<=" >//27
+	| <MN: "<" > //28
+	| <GE: ">=" >//29
+	| <GR: ">" >//30
+	| <NE: "!=" >//31
+	| <OR: "||" >//32
+	| <AND: "&&" >//33
+}
+
 SKIP:
 {
 	" "|"\n" | "\r" | "\r\n" | "\t"
 }
 
 void Programa():
+{}
 {
-	ValidadorSemantico.SetTables();	
-}
-{
-	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>
+	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>{globales.verTabla();}
 }
 void Programa_AUX():
 {}
@@ -187,8 +207,8 @@ void VARS_AUX1(int iTokenK):
 	Token tVar;
 }
 {
-	<VECTOR> tVar = <ID>{		
-			ValidadorSemantico.InsertarSimbolo(tVar, iTokenK);
+	<VECTOR> tVar = <ID>{
+			globales.InsertarSimbolo(tVar, new Variable(iTokenK,0));
 		}
 		 <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1(iTokenK,tVar) <RKEY>)?
 }
@@ -202,7 +222,7 @@ void VARS_AUX1_1(int iTokenK, Token tVar):
 {
 	VARS_AUX2_1(){  
 		tVar2 = token;
-		res = ValidadorSemantico.checkAsing(tVar, tVar2);
+		res = globales.checkAsing(tVar, tVar2);
 		
 		if(res != " ")
 		{
@@ -220,10 +240,10 @@ void VARS_AUX2(int iTokenK):
 }
 {
 	tVar = <ID>{		
-			ValidadorSemantico.InsertarSimbolo(tVar, iTokenK);
+			globales.InsertarSimbolo(tVar,  new Variable(iTokenK,0));
 		} (<"="> VARS_AUX2_1(){  
 		tVar2 = token;
-		res = ValidadorSemantico.checkAsing(tVar, tVar2);
+		res = globales.checkAsing(tVar, tVar2);
 		
 		if(res != " ")
 		{
@@ -300,7 +320,7 @@ void ASIGNACION():
 {
 	v1 = <ID> <"="> EXP(){  
     v2 = token;
-	res = ValidadorSemantico.checkAsing(v1, v2);
+	res = globales.checkAsing(v1, v2);
 	
 	if(res != " ")
 	{
@@ -309,7 +329,7 @@ void ASIGNACION():
 	}
   }{  
     v2 = token;
-	res = ValidadorSemantico.checkAsing(v1, v2);
+	res = globales.checkAsing(v1, v2);
 	
 	if(res != " ")
 	{
