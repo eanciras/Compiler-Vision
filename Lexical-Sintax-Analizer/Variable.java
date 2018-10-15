@@ -1,15 +1,30 @@
 public class Variable {
-    int type;  // type,in calculator expample there only is one type==> Int.
-    int value; // value, the value in here is a string not a integer value.
+    int type;
+    int valueI;
+    float valueF;
+    char valueC;
 
-    public Variable(int itype, int ivalue) {
-        type=itype;
-        value=ivalue;
+    public Variable(int type, int value) {
+        this.type= type;
+        this.valueI = value;
 
     }
-    public String toString() {
-        return "[type: " + this.type + ", Value: " + this.value + "]";
+
+    public Variable(int type, float value) {
+        this.type= type;
+        this.valueF = value;
+
     }
+
+    public Variable(int type, char value) {
+        this.type= type;
+        this.valueC = value;
+
+    }
+
+    /*public String toString() {
+        return "[type: " + this.type + ", Value: " + this.valueI + "]";
+    }*/
 
     public int getType() {
         return type;
@@ -19,11 +34,27 @@ public class Variable {
         this.type = type;
     }
 
-    public int getValue() {
-        return value;
+    public int getValueI() {
+        return valueI;
     }
 
-    public void setValue(int value) {
-        this.value = value;
+    public void setValueI(int valueI) {
+        this.valueI = valueI;
+    }
+
+    public float getValueF() {
+        return valueF;
+    }
+
+    public void setValueF(float valueF) {
+        this.valueF = valueF;
+    }
+
+    public char getValueC() {
+        return valueC;
+    }
+
+    public void setValueC(char valueC) {
+        this.valueC = valueC;
     }
 }

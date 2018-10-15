@@ -1,0 +1,300 @@
+PARSER_BEGIN(compilador)
+import java.io.*;
+import java.util.*;
+class compilador
+{
+    public static TablaVariables tablaGlobal = new TablaVariables();
+    static boolean contextoGlobal = true;
+	public static void main( String[] args )throws ParseException, Exception
+	{
+		try
+		{		
+     		compilador analizador = new compilador( System.in ) ;
+			analizador.Programa();
+			System.out.println("\tSuccessfully compiled");
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("\tErrors found");
+		}
+	}
+}
+PARSER_END(compilador)
+
+//palabras reservadas
+TOKEN:
+{
+	<PROGRAM: "Program" >   //1
+	| <IF: "if" >           //2
+	| <ELSE: "else" >       //3
+	| <WHILE: "while" >     //4
+	| <PRINT: "print" >     //5
+	| <INT: "int" >         //6
+	| <FLOAT: "float" >     //7
+	| <CHAR: "char" >       //8
+	| <VECTOR: "vector" >   //9
+	| <RETURN: "return" >   //10
+	| <VOID: "void">        //11
+	| <LBRACKET: "[">       //12
+	| <RBRACKET: "]">       //13
+	| <LKEY: "{">           //14
+    | <RKEY: "}">           //14
+	| <SEMICOLON: ";">      //16
+	| <EMPTY: "">           //17
+	| <ADDITION: "+">       //18
+	| <SUBSTRACTION: "-">   //19
+	| <DIVISION: "/">       //20
+	| <MULTIPLICATION: "*"> //21
+	| <GT: ">">             //22
+	| <LT: "<">             //23
+	| <EQ: "==">            //24
+	| <GTE: ">=">           //25
+	| <LTE: "<=">           //26
+	| <DFT: "!">            //27
+	| <AND: "&&">           //28
+	| <OR: "||">            //29
+}
+
+TOKEN:
+{
+	<cte_i: ( ["0"-"9"] )+ >                                            //30
+	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >                           //31
+	|<cte_c : ["a"-"z","A"-"Z","0"-"9","#"-"%"] >                       //32
+	|<ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )*>     //33
+	 
+}
+
+SKIP:
+{
+	" "|"\n" | "\r" | "\r\n" | "\t"
+}
+
+void Programa():
+{
+    ArrayList<Integer> listaErrores = new ArrayList<Integer>();
+}
+{
+	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>{tablaGlobal.verTabla();}
+}
+void Programa_AUX():
+{}
+{
+   (LOOKAHEAD(3) VARS())* (MODULO())* BLOQUE()
+}
+
+void BLOQUE():
+{}
+{
+	(LOOKAHEAD(2) <LKEY> BLOQUE_AUX() <RKEY>)?
+}
+
+void BLOQUE_AUX():
+{}
+{
+	ESTATUTO() (BLOQUE_AUX())? | <EMPTY>
+}
+
+void ESTATUTO():
+{}
+{
+	VARS() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
+
+}
+
+void MEGAEXPRESION():
+{}
+{
+	EXPRESION() MEGAEXPRESION_AUX()
+}  
+
+void MEGAEXPRESION_AUX():
+{}
+{ 
+	((<"&&"> | <"||">) EXPRESION())?
+}  
+
+void EXPRESION():
+{}
+{
+	EXP() (EXPRESION_AUX() EXP())?
+}                                                  
+
+void EXPRESION_AUX():
+{}
+{  
+	<LT> | <GT> | <DFT> | <EQ> | <GTE> | <LTE>
+}
+
+Variable EXP():
+{}
+{
+	TERMINO() (LOOKAHEAD(3) EXP_AUX() EXP())? {return new Variable(0,24);}
+}
+
+void EXP_AUX():
+{}
+{  
+	<ADDITION> | <SUBSTRACTION>
+}
+
+void TERMINO():
+{}
+{
+	FACTOR() (LOOKAHEAD(3) TERMINO_AUX() TERMINO())?
+}
+
+void TERMINO_AUX():
+{}
+{
+	<MULTIPLICATION> | <DIVISION>
+}
+
+void FACTOR():
+{}
+{
+	<"("> MEGAEXPRESION() <")"> | (FACTOR_AUX())? VARCTE()
+}
+
+void FACTOR_AUX():
+{}
+{
+	<ADDITION> | <SUBSTRACTION>
+}
+
+void VARCTE():
+{}
+{
+	<ID> (<LBRACKET> EXP() <RBRACKET>)? | <cte_i> | <cte_f>
+}
+
+void CONDICION():
+{}
+{
+	<IF> <"("> MEGAEXPRESION() <")"> BLOQUE() CONDICION_AUX()
+}
+
+void CONDICION_AUX():
+{}
+{
+	(<ELSE> (CONDICION() | BLOQUE()))?
+}
+
+void CICLO():
+{}
+{
+	<WHILE> <"("> MEGAEXPRESION() <")"> BLOQUE() 
+}
+
+void VARS():
+{
+int tipo;
+boolean entero = false, flotante = false, caracter = false;
+}
+{
+	TIPO(){
+	    //Indica el tipo del siguiente conjunto de variables
+	    tipo = 6 - token.kind;
+	    if (tipo == 0){
+	        entero = true;
+	    }else if (tipo == 1){
+	        flotante = true;
+	    }else if (tipo == 2){
+	        caracter = true;
+	    }
+	}(VARS_AUX1() | VARS_AUX2(entero, flotante, caracter, tipo)) <SEMICOLON>
+}
+
+void VARS_AUX1():
+{
+//TODO Trabajar en el manejo de vectores
+}
+{
+	<VECTOR> <ID> <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?
+}
+
+void VARS_AUX1_1():
+{}
+{
+	EXP() (LOOKAHEAD(2) <","> VARS_AUX1_1())*
+}
+void VARS_AUX2(boolean entero, boolean flotante, boolean caracter, int tipo):
+{
+Token identificador;
+Variable var = new Variable(0,0);
+int valueI;
+float valueF;
+char valueC;
+}
+{
+	identificador = <ID> (<"="> var = EXP())? {
+	    //Se crea un objeto con los atributos de la variable, el nombre de la variable es el indicador en la tabla de variables
+	    System.out.println(token.toString());
+
+	    //Si se están declarando variables globales estas se guardan en el contexto global
+	    if(contextoGlobal){
+	        tablaGlobal.insertarVar(identificador, var);
+	    }
+	}
+	(<","> VARS_AUX2(entero, flotante, caracter, tipo))?
+}
+
+void MODULO():
+{}
+{
+	MODULO_TIPO() <ID> <"("> MODULO_AUX() <")"> BLOQUE()
+}
+
+void MODULO_TIPO():
+{}
+{
+	<VOID> | <INT> | <FLOAT> | <CHAR> | <VECTOR>
+}
+
+void MODULO_AUX():
+{}
+{
+	(TIPO() <ID> (<","> MODULO_AUX())?)?
+}
+
+void RETORNO():
+{}
+{
+	<RETURN> (LOOKAHEAD(3) VARCTE() | EXP()) <SEMICOLON>
+}
+
+void LLAMADA_FUNC():
+{}
+{
+	<ID> <"("> LLAMADA_AUX() <")"> <SEMICOLON>
+}
+
+void LLAMADA_AUX():
+{}
+{
+	(LLAMADA_PARAM() (<","> LLAMADA_AUX())?)?
+}
+
+void LLAMADA_PARAM():
+{}
+{
+	LOOKAHEAD(3) <ID> | EXP()
+}
+
+void TIPO():
+{}
+{
+	<INT> | <FLOAT> | <CHAR> 
+}
+
+void ESCRITURA():
+{}
+{
+	<PRINT> <"("> ESCRITURA_AUX() <")"> <SEMICOLON>
+}
+
+void ESCRITURA_AUX():
+{}
+{
+	EXP() (ESCRITURA_AUX())? | <"\""> (<cte_c> | VARCTE())* <"\"">
+}
