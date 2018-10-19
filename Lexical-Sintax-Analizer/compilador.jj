@@ -3,20 +3,29 @@ import java.io.*;
 import java.util.*;
 class compilador
 {
-    public static TablaVariables tablaGlobal = new TablaVariables();
-    static boolean contextoGlobal = true;
-	public static void main( String[] args )throws ParseException, Exception
+    private static String printConsole; //Esta variable global es la que se imprime en consola con el comando print
+    private static int tipo = 0;       //La variable indica el tipo de las siguientes variables declaradas en el renglón
+
+    //Todas las funciones se guardán aqui en dferentes espacios (contextos) que contendras los contextos locales
+    private static Vector<TablaVariables> listaContextos = new Vector<TablaVariables>();
+    private static ArrayList<String> listaErrores = new ArrayList<String>();    //Todos los errores se imprimen después de compilación
+    public static CuboSemantico cuboSemantico = new CuboSemantico();
+
+    public static void main( String[] args )throws ParseException, Exception
 	{
 		try
 		{		
      		compilador analizador = new compilador( System.in ) ;
 			analizador.Programa();
-			System.out.println("\tSuccessfully compiled");
+			for(int i = 0; i < listaErrores.size(); i++){
+			    System.out.println(listaErrores.get(i));
+			}
+			System.out.println("\n\tBuild Successful.\n\tFinished compiling with "+listaErrores.size()+" errors.");
 		}
 		catch(ParseException e)
 		{
 			System.out.println(e.getMessage());
-			System.out.println("\tErrors found");
+			System.out.println("\n\tErrors found.");
 		}
 	}
 }
@@ -39,9 +48,8 @@ TOKEN:
 	| <LBRACKET: "[">       //12
 	| <RBRACKET: "]">       //13
 	| <LKEY: "{">           //14
-    | <RKEY: "}">           //14
-	| <SEMICOLON: ";">      //16
-	| <EMPTY: "">           //17
+    | <RKEY: "}">           //15
+	| <SEMICOLON: ";">      //17
 	| <ADDITION: "+">       //18
 	| <SUBSTRACTION: "-">   //19
 	| <DIVISION: "/">       //20
@@ -54,33 +62,34 @@ TOKEN:
 	| <DFT: "!">            //27
 	| <AND: "&&">           //28
 	| <OR: "||">            //29
+	| <LPHARENTESIS: "(">   //30
+	| <RPHARENTESIS: ")">   //31
+	| <COMA: ",">           //32
+	| <QUOTE: "\"">         //33
+	| <EQUAL: "=">          //34
 }
 
+//expresiones regulares para variables
 TOKEN:
 {
-	<cte_i: ( ["0"-"9"] )+ >                                            //30
-	|<cte_f: ( ["0"-"9"] )+("."["0"-"9"])?  >                           //31
-	|<cte_c : ["a"-"z","A"-"Z","0"-"9","#"-"%"] >                       //32
-	|<ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )*>     //33
+	<cte_i: ( ["0"-"9"] )+ >                                            //35    int
+	|<cte_f: ( ["0"-"9"] )+("."(["0"-"9"])+)?  >                        //36    float
+	|<cte_s: ("\"")(~["\r","\""])+("\"")>                                   //37    string
+	|<ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )*>     //39    id
 	 
 }
 
 SKIP:
 {
-	" "|"\n" | "\r" | "\r\n" | "\t"
+	" " | "\n" | "\r" | "\r\n" | "\t" | <"//"(~["\n","\r"])*("\n" | "\r" | "\r\n")> //omite los saltos de linea, espacios en blanco, tabulaciones y comentarios
 }
 
 void Programa():
 {
-    ArrayList<Integer> listaErrores = new ArrayList<Integer>();
+listaContextos.addElement(new TablaVariables());
 }
 {
-	<PROGRAM> <ID> <SEMICOLON> Programa_AUX() <EOF>{tablaGlobal.verTabla();}
-}
-void Programa_AUX():
-{}
-{
-   (LOOKAHEAD(3) VARS())* (MODULO())* BLOQUE()
+	<PROGRAM> <ID> <SEMICOLON> (LOOKAHEAD(3) VARS())* (MODULO())* BLOQUE() <EOF>
 }
 
 void BLOQUE():
@@ -92,50 +101,50 @@ void BLOQUE():
 void BLOQUE_AUX():
 {}
 {
-	ESTATUTO() (BLOQUE_AUX())? | <EMPTY>
+	ESTATUTO() (BLOQUE_AUX())?
 }
 
 void ESTATUTO():
 {}
 {
-	VARS() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
+	LOOKAHEAD(3) VARS() | LOOKAHEAD(3) ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
 
+}
+
+void ASIGNACION():
+{Variable var;}
+{
+    <ID> {
+
+    }<EQUAL> var = EXP() <SEMICOLON>
 }
 
 void MEGAEXPRESION():
 {}
 {
-	EXPRESION() MEGAEXPRESION_AUX()
-}  
-
-void MEGAEXPRESION_AUX():
-{}
-{ 
-	((<"&&"> | <"||">) EXPRESION())?
-}  
+	EXPRESION() ((<AND> | <OR>) EXPRESION())?
+}
 
 void EXPRESION():
 {}
 {
 	EXP() (EXPRESION_AUX() EXP())?
-}                                                  
+}
 
 void EXPRESION_AUX():
 {}
-{  
+{
 	<LT> | <GT> | <DFT> | <EQ> | <GTE> | <LTE>
 }
 
 Variable EXP():
 {}
 {
-	TERMINO() (LOOKAHEAD(3) EXP_AUX() EXP())? {return new Variable(0,24);}
-}
-
-void EXP_AUX():
-{}
-{  
-	<ADDITION> | <SUBSTRACTION>
+	TERMINO() (LOOKAHEAD(3) (<ADDITION>
+	| <SUBSTRACTION>) EXP())? {
+            if(tipo == 0){return new Variable(0,Integer.parseInt(token.image));}
+            else{return new Variable(1,Float.parseFloat(token.image));}
+	    }
 }
 
 void TERMINO():
@@ -153,25 +162,33 @@ void TERMINO_AUX():
 void FACTOR():
 {}
 {
-	<"("> MEGAEXPRESION() <")"> | (FACTOR_AUX())? VARCTE()
-}
-
-void FACTOR_AUX():
-{}
-{
-	<ADDITION> | <SUBSTRACTION>
+	<LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS> | (<SUBSTRACTION>)? VARCTE()
 }
 
 void VARCTE():
 {}
 {
-	<ID> (<LBRACKET> EXP() <RBRACKET>)? | <cte_i> | <cte_f>
+	<ID>{
+	    //Looks for the variable on local and global context
+	    boolean noError = false;
+	    int i=0;
+	    //Realiza una busqueda del contexto global al local
+	    for(i = 0; i < listaContextos.size() && !noError; i++){
+	        if(listaContextos.get(i).obtenerVar(token.image)!=null){
+	            tipo = listaContextos.get(i).obtenerVar(token.image).getType();
+	            token.image = listaContextos.get(i).obtenerVar(token.image).getValue().toString();
+                noError=true;
+	        }
+	    }
+
+        if(!noError)listaErrores.add("Error: variable '"+token.image+"' not found \n\tAt line "+token.beginLine+", column"+token.beginColumn);
+	}(<LBRACKET> EXP() <RBRACKET>)? | <cte_i> | <cte_f>
 }
 
 void CONDICION():
 {}
 {
-	<IF> <"("> MEGAEXPRESION() <")"> BLOQUE() CONDICION_AUX()
+	{listaContextos.addElement(new TablaVariables());} <IF> <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS> BLOQUE() CONDICION_AUX() {listaContextos.remove(listaContextos.lastElement());}
 }
 
 void CONDICION_AUX():
@@ -183,26 +200,16 @@ void CONDICION_AUX():
 void CICLO():
 {}
 {
-	<WHILE> <"("> MEGAEXPRESION() <")"> BLOQUE() 
+	{listaContextos.addElement(new TablaVariables());} <WHILE> <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS> BLOQUE() {listaContextos.remove(listaContextos.lastElement());}
 }
 
 void VARS():
-{
-int tipo;
-boolean entero = false, flotante = false, caracter = false;
-}
+{}
 {
 	TIPO(){
 	    //Indica el tipo del siguiente conjunto de variables
-	    tipo = 6 - token.kind;
-	    if (tipo == 0){
-	        entero = true;
-	    }else if (tipo == 1){
-	        flotante = true;
-	    }else if (tipo == 2){
-	        caracter = true;
-	    }
-	}(VARS_AUX1() | VARS_AUX2(entero, flotante, caracter, tipo)) <SEMICOLON>
+	    tipo = token.kind-6;
+	}(VARS_AUX1() | VARS_AUX2()) <SEMICOLON>
 }
 
 void VARS_AUX1():
@@ -210,39 +217,49 @@ void VARS_AUX1():
 //TODO Trabajar en el manejo de vectores
 }
 {
-	<VECTOR> <ID> <LBRACKET> EXP() <RBRACKET> (<"="> <LKEY> VARS_AUX1_1() <RKEY>)?
+	<VECTOR> <ID> <LBRACKET> EXP() <RBRACKET> (<EQUAL> <LKEY> VARS_AUX1_1() <RKEY>)?
 }
 
 void VARS_AUX1_1():
 {}
 {
-	EXP() (LOOKAHEAD(2) <","> VARS_AUX1_1())*
+	EXP() (LOOKAHEAD(2) <COMA> VARS_AUX1_1())*
 }
-void VARS_AUX2(boolean entero, boolean flotante, boolean caracter, int tipo):
+void VARS_AUX2():
 {
-Token identificador;
-Variable var = new Variable(0,0);
-int valueI;
-float valueF;
-char valueC;
+Token identificador;                //El nombre de la variable
+Variable var = new Variable(0,0);   //La variable con tipo y valor
 }
 {
-	identificador = <ID> (<"="> var = EXP())? {
-	    //Se crea un objeto con los atributos de la variable, el nombre de la variable es el indicador en la tabla de variables
-	    System.out.println(token.toString());
+	identificador = <ID> (<EQUAL> var = EXP())? {
+	    var.setType(tipo);
+        boolean noVar = false;
+        int i = 0;
 
-	    //Si se están declarando variables globales estas se guardan en el contexto global
-	    if(contextoGlobal){
-	        tablaGlobal.insertarVar(identificador, var);
-	    }
+        //Busca de contexto global a local si la variable existe
+        for(i = 0; i < listaContextos.size(); i++){
+            if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
+                noVar=true;
+            }
+        }
+
+        if(!noVar){
+            listaContextos.lastElement().insertarVar(identificador.image, var);
+        }
+
+        if(noVar){
+            listaErrores.add("Error: variable '"+identificador.image+"' was already declared at this scope \n\tAt line "+token.beginLine+", column"+token.beginColumn);
+        }
 	}
-	(<","> VARS_AUX2(entero, flotante, caracter, tipo))?
+	(<","> VARS_AUX2())?
 }
 
 void MODULO():
-{}
 {
-	MODULO_TIPO() <ID> <"("> MODULO_AUX() <")"> BLOQUE()
+    listaContextos.addElement(new TablaVariables());
+}
+{
+	MODULO_TIPO() <ID> <LPHARENTESIS> MODULO_AUX() <RPHARENTESIS> BLOQUE()
 }
 
 void MODULO_TIPO():
@@ -254,7 +271,7 @@ void MODULO_TIPO():
 void MODULO_AUX():
 {}
 {
-	(TIPO() <ID> (<","> MODULO_AUX())?)?
+	(TIPO() <ID> (<COMA> MODULO_AUX())?)?
 }
 
 void RETORNO():
@@ -266,13 +283,13 @@ void RETORNO():
 void LLAMADA_FUNC():
 {}
 {
-	<ID> <"("> LLAMADA_AUX() <")"> <SEMICOLON>
+	<ID> <LPHARENTESIS> LLAMADA_AUX() <RPHARENTESIS> <SEMICOLON>
 }
 
 void LLAMADA_AUX():
 {}
 {
-	(LLAMADA_PARAM() (<","> LLAMADA_AUX())?)?
+	(LLAMADA_PARAM() (<COMA> LLAMADA_AUX())?)?
 }
 
 void LLAMADA_PARAM():
@@ -288,13 +305,29 @@ void TIPO():
 }
 
 void ESCRITURA():
-{}
 {
-	<PRINT> <"("> ESCRITURA_AUX() <")"> <SEMICOLON>
+printConsole = "";
+}
+{
+	<PRINT> <LPHARENTESIS> (ESCRITURA_AUX() | ESCRITURA_AUX2()) <RPHARENTESIS> <SEMICOLON> {System.out.println(printConsole);}
 }
 
 void ESCRITURA_AUX():
 {}
 {
-	EXP() (ESCRITURA_AUX())? | <"\""> (<cte_c> | VARCTE())* <"\"">
+	<cte_s>{
+	    String aux = token.image;
+	    aux = aux.substring(1);
+	    aux = aux.substring(0, aux.length()-1);
+	    printConsole += aux;
+	}
+	(<ADDITION> ESCRITURA_AUX2())?
+}
+
+void ESCRITURA_AUX2():
+{
+Variable var;
+}
+{
+    var = EXP() {printConsole += var.getValue().toString();} (<ADDITION> ESCRITURA_AUX())?
 }

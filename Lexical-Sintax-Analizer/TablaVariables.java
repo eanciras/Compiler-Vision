@@ -1,25 +1,24 @@
 import java.util.Hashtable;
-import java.lang.String;
-import java.util.ArrayList;
 
 class TablaVariables {
-	public int segunda = 0;
 
 	public Hashtable tabla = new Hashtable();
 
 	//Inserta una variable en la tabla actual de variables
-	public boolean insertarVar(Token identificador, Variable varInfo) {
-		if (tabla.containsKey(identificador.image)){
-		    return false;
+	public boolean insertarVar(String identificador, Variable varInfo) {
+	    if (tabla.containsKey(identificador)){
+            return false;
         }
 
-        tabla.put(identificador.image, varInfo);
+        tabla.put(identificador, varInfo);
 		return true;
 	}
 
-    //Actualiza una variable existente
-    public boolean actualizarVar(Token identificador, Variable varInfo){
-        if (!tabla.containsKey(identificador.image)){
+    //Actualiza una variable existente dado el nombre de la variable y el objeto Variable
+    public boolean actualizarVar(String identificador, Variable varInfo){
+
+	    //Si la variable no ha sido declarada entonces regresa falso para manejo de errores
+	    if (!tabla.containsKey(identificador)){
             return false;
         }
 
@@ -29,15 +28,15 @@ class TablaVariables {
     }
 
     //Regresa el valor de la variable dado el nombre de la misma
-    public Variable obtenerVar(Token identificador){
-        if (!tabla.containsKey(identificador.image)) {
+    public Variable obtenerVar(String identificador){
+        if (!tabla.containsKey(identificador)) {
             return null;
         }
-        return (Variable) tabla.get(identificador.image);
+        return (Variable) tabla.get(identificador);
     }
 
 	//Imprime en consola toda la table de variables
 	public void verTabla() {
-		System.out.print(tabla.toString());
+		System.out.print(tabla.toString()+"\n");
 	}
 }

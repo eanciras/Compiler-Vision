@@ -1,30 +1,19 @@
-public class Variable {
-    int type;
-    int valueI;
-    float valueF;
-    char valueC;
+import java.lang.reflect.Type;
+import java.util.Set;
 
-    public Variable(int type, int value) {
+public class Variable<T> {
+    T value;
+    int type = -1;
+
+    public Variable(int type, T value) {
         this.type= type;
-        this.valueI = value;
+        this.value = value;
 
     }
 
-    public Variable(int type, float value) {
-        this.type= type;
-        this.valueF = value;
-
+    public String toString() {
+        return "[type: "+type+" , Value: " + this.value + "]";
     }
-
-    public Variable(int type, char value) {
-        this.type= type;
-        this.valueC = value;
-
-    }
-
-    /*public String toString() {
-        return "[type: " + this.type + ", Value: " + this.valueI + "]";
-    }*/
 
     public int getType() {
         return type;
@@ -34,27 +23,11 @@ public class Variable {
         this.type = type;
     }
 
-    public int getValueI() {
-        return valueI;
+    public void setValue(T value){
+        this.value = value;
     }
 
-    public void setValueI(int valueI) {
-        this.valueI = valueI;
-    }
-
-    public float getValueF() {
-        return valueF;
-    }
-
-    public void setValueF(float valueF) {
-        this.valueF = valueF;
-    }
-
-    public char getValueC() {
-        return valueC;
-    }
-
-    public void setValueC(char valueC) {
-        this.valueC = valueC;
+    public T getValue() {
+        return this.value;
     }
 }
