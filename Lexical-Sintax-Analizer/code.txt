@@ -1,13 +1,15 @@
 Program test;
 int b = 4;
 int main(){
-    int b = 2;
+    //int b = 2;
     //int b = 4;
+    //c = 3;
 
     while(1){
         int a = 5;
+        b = a;
         print("var b = "+b);
     }
 
-    //print("var a = "+b+" good");
+    //print("Hola mundo! var a = "+a+" good");
 }

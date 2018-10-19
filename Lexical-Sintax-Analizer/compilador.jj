@@ -3,12 +3,13 @@ import java.io.*;
 import java.util.*;
 class compilador
 {
-    private static String printConsole; //Esta variable global es la que se imprime en consola con el comando print
+    private static String printConsole;
     private static int tipo = 0;       //La variable indica el tipo de las siguientes variables declaradas en el renglón
 
     //Todas las funciones se guardán aqui en dferentes espacios (contextos) que contendras los contextos locales
     private static Vector<TablaVariables> listaContextos = new Vector<TablaVariables>();
     private static ArrayList<String> listaErrores = new ArrayList<String>();    //Todos los errores se imprimen después de compilación
+    private static ArrayList<String> printConsoleArr = new ArrayList<String>();    //Esta lista se imprime en consola con el comando print al finalizar la compilación
     public static CuboSemantico cuboSemantico = new CuboSemantico();
 
     public static void main( String[] args )throws ParseException, Exception
@@ -20,7 +21,14 @@ class compilador
 			for(int i = 0; i < listaErrores.size(); i++){
 			    System.out.println(listaErrores.get(i));
 			}
-			System.out.println("\n\tBuild Successful.\n\tFinished compiling with "+listaErrores.size()+" errors.");
+			if(listaErrores.size()<1){
+			    for(int i = 0; i < printConsoleArr.size(); i++){
+                    System.out.println(printConsoleArr.get(i));
+                }
+                System.out.println("\n\tBuild Sucessful");
+			}else{
+			System.out.println("\n"+listaErrores.size()+" errors.");
+			}
 		}
 		catch(ParseException e)
 		{
@@ -74,7 +82,7 @@ TOKEN:
 {
 	<cte_i: ( ["0"-"9"] )+ >                                            //35    int
 	|<cte_f: ( ["0"-"9"] )+("."(["0"-"9"])+)?  >                        //36    float
-	|<cte_s: ("\"")(~["\r","\""])+("\"")>                                   //37    string
+	|<cte_s: ("\"")(~["\r","\""])+("\"")>                               //37    string
 	|<ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )*>     //39    id
 	 
 }
@@ -112,11 +120,25 @@ void ESTATUTO():
 }
 
 void ASIGNACION():
-{Variable var;}
 {
-    <ID> {
+Objeto var;
+Token identificador;
+}
+{
+    identificador = <ID> <EQUAL> var = EXP() <SEMICOLON>{
+        boolean error = true;
 
-    }<EQUAL> var = EXP() <SEMICOLON>
+        int i = 0;
+        //Realiza una busqueda del contexto global al local
+        for(i = 0; i < listaContextos.size() && error; i++){
+            if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
+                listaContextos.get(i).actualizarVar(identificador.image, var);
+                error=false;
+            }
+        }
+
+        if(error)listaErrores.add("Error found At line "+identificador.beginLine+", column "+identificador.beginColumn+"\n   variable '"+identificador.image+"' has not been declared.");
+    }
 }
 
 void MEGAEXPRESION():
@@ -137,14 +159,14 @@ void EXPRESION_AUX():
 	<LT> | <GT> | <DFT> | <EQ> | <GTE> | <LTE>
 }
 
-Variable EXP():
+Objeto EXP():
 {}
 {
 	TERMINO() (LOOKAHEAD(3) (<ADDITION>
 	| <SUBSTRACTION>) EXP())? {
-            if(tipo == 0){return new Variable(0,Integer.parseInt(token.image));}
-            else{return new Variable(1,Float.parseFloat(token.image));}
-	    }
+        if(tipo == 0){return new Objeto(0,Integer.parseInt(token.image));}
+        else{return new Objeto(1,Float.parseFloat(token.image));}
+	}
 }
 
 void TERMINO():
@@ -165,24 +187,28 @@ void FACTOR():
 	<LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS> | (<SUBSTRACTION>)? VARCTE()
 }
 
-void VARCTE():
-{}
+Objeto VARCTE():
+{
+int i=0;
+}
 {
 	<ID>{
 	    //Looks for the variable on local and global context
-	    boolean noError = false;
-	    int i=0;
+	    boolean error = true;
 	    //Realiza una busqueda del contexto global al local
-	    for(i = 0; i < listaContextos.size() && !noError; i++){
+	    for(i = 0; i < listaContextos.size() && error; i++){
 	        if(listaContextos.get(i).obtenerVar(token.image)!=null){
 	            tipo = listaContextos.get(i).obtenerVar(token.image).getType();
 	            token.image = listaContextos.get(i).obtenerVar(token.image).getValue().toString();
-                noError=true;
+                error=false;
 	        }
 	    }
 
-        if(!noError)listaErrores.add("Error: variable '"+token.image+"' not found \n\tAt line "+token.beginLine+", column"+token.beginColumn);
-	}(<LBRACKET> EXP() <RBRACKET>)? | <cte_i> | <cte_f>
+        if(error){
+            listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n   variable '"+token.image+"' was not found.");
+            token.image = "0";
+        }
+	}(<LBRACKET> EXP() <RBRACKET>)? {return listaContextos.get(i-1).obtenerVar(token.image);} | <cte_i> {return new Objeto();} | <cte_f> {return new Objeto();}
 }
 
 void CONDICION():
@@ -227,28 +253,31 @@ void VARS_AUX1_1():
 }
 void VARS_AUX2():
 {
-Token identificador;                //El nombre de la variable
-Variable var = new Variable(0,0);   //La variable con tipo y valor
+Token identificador;            //El nombre de la variable
+Objeto var = new Objeto(0,0);   //La variable con tipo y valor
 }
 {
 	identificador = <ID> (<EQUAL> var = EXP())? {
 	    var.setType(tipo);
         boolean noVar = false;
-        int i = 0;
 
-        //Busca de contexto global a local si la variable existe
-        for(i = 0; i < listaContextos.size(); i++){
-            if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
-                noVar=true;
+        if(var.getStatus().equals("ok")){
+            int i = 0;
+
+            //Busca de contexto global a local si la variable existe
+            for(i = 0; i < listaContextos.size(); i++){
+                if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
+                    noVar=true;
+                }
+            }
+
+            if(!noVar){
+                listaContextos.lastElement().insertarVar(identificador.image, var);
             }
         }
 
-        if(!noVar){
-            listaContextos.lastElement().insertarVar(identificador.image, var);
-        }
-
         if(noVar){
-            listaErrores.add("Error: variable '"+identificador.image+"' was already declared at this scope \n\tAt line "+token.beginLine+", column"+token.beginColumn);
+            listaErrores.add("Error found At line "+identificador.beginLine+", column "+identificador.beginColumn+"\n   variable '"+identificador.image+"' was already declared at this scope.");
         }
 	}
 	(<","> VARS_AUX2())?
@@ -309,7 +338,7 @@ void ESCRITURA():
 printConsole = "";
 }
 {
-	<PRINT> <LPHARENTESIS> (ESCRITURA_AUX() | ESCRITURA_AUX2()) <RPHARENTESIS> <SEMICOLON> {System.out.println(printConsole);}
+	<PRINT> <LPHARENTESIS> (ESCRITURA_AUX() | ESCRITURA_AUX2()) <RPHARENTESIS> <SEMICOLON> {printConsoleArr.add(printConsole);}
 }
 
 void ESCRITURA_AUX():
@@ -326,7 +355,7 @@ void ESCRITURA_AUX():
 
 void ESCRITURA_AUX2():
 {
-Variable var;
+Objeto var;
 }
 {
     var = EXP() {printConsole += var.getValue().toString();} (<ADDITION> ESCRITURA_AUX())?
