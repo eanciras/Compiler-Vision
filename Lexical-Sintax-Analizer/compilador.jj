@@ -11,6 +11,7 @@ class compilador
     private static ArrayList<String> listaErrores = new ArrayList<String>();    //Todos los errores se imprimen después de compilación
     private static ArrayList<String> printConsoleArr = new ArrayList<String>();    //Esta lista se imprime en consola con el comando print al finalizar la compilación
     public static CuboSemantico cuboSemantico = new CuboSemantico();
+    public static Objeto[] cuadruplos = new Objeto[4];
 
     public static void main( String[] args )throws ParseException, Exception
 	{
@@ -304,27 +305,76 @@ void MODULO_AUX():
 }
 
 void RETORNO():
-{}
+{
+ Objeto retorno = new Objeto(40,"return");
+ cuadruplos[0] = retorno;
+ cuadruplos[1] = new Objeto();
+ cuadruplos[2] = new Objeto();
+ cuadruplos[3] = new Objeto();
+ for(int i = 0; i < 4; i++){
+    System.out.print(cuadruplos[i] + " ");
+ }
+}
 {
 	<RETURN> (LOOKAHEAD(3) VARCTE() | EXP()) <SEMICOLON>
 }
 
 void LLAMADA_FUNC():
-{}
 {
-	<ID> <LPHARENTESIS> LLAMADA_AUX() <RPHARENTESIS> <SEMICOLON>
+Token identificador;            //El nombre de la variable
+Objeto var = new Objeto(0,0);   //La variable con tipo y valor
+}
+{
+	identificador = <ID>{
+    	Objeto retorno = new Objeto(41,"era");
+              cuadruplos[0] = retorno;
+              cuadruplos[1] = new Objeto();
+              cuadruplos[2] = new Objeto();
+              cuadruplos[3] = new Objeto(identificador.kind,identificador.image);
+
+              for(int i = 0; i < 4; i++){
+                 System.out.print(cuadruplos[i] + " ");
+              }
+              System.out.println();
+	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> <SEMICOLON>
 }
 
-void LLAMADA_AUX():
+void LLAMADA_AUX(int cont):
 {}
 {
-	(LLAMADA_PARAM() (<COMA> LLAMADA_AUX())?)?
+	(LLAMADA_PARAM(cont) (<COMA> LLAMADA_AUX(cont + 1))?)?
 }
 
-void LLAMADA_PARAM():
-{}
+void LLAMADA_PARAM(int cont):
 {
-	LOOKAHEAD(3) <ID> | EXP()
+    Token identificador;            //El nombre de la variable
+    Objeto var = new Objeto(0,0);   //La variable con tipo y valor
+}
+{
+	LOOKAHEAD(3) identificador = <ID>{
+            Objeto retorno = new Objeto(42,"param" + cont);
+                   cuadruplos[0] = retorno;
+                   cuadruplos[1] = new Objeto();
+                   cuadruplos[2] = new Objeto();
+                   cuadruplos[3] = new Objeto(identificador.kind,identificador.image);
+
+                   for(int i = 0; i < 4; i++){
+                      System.out.print(cuadruplos[i] + " ");
+                   }
+                   System.out.println();
+        } |  var = EXP(){
+                Objeto retorno = new Objeto(42,"param" + cont);
+                cuadruplos[0] = retorno;
+                cuadruplos[1] = new Objeto();
+                cuadruplos[2] = new Objeto();
+                cuadruplos[3] = var;
+
+                for(int i = 0; i < 4; i++){
+                   System.out.print(cuadruplos[i] + " ");
+                }
+                System.out.println();
+
+        }
 }
 
 void TIPO():

@@ -12,4 +12,6 @@ int main(){
     }
 
     //print("Hola mundo! var a = "+a+" good");
+    main(res,1+2);
+    return 0;
 }
