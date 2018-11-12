@@ -7,6 +7,8 @@ public class Objeto<T> {
     int paramsNum;
     T ret;
     String status = "ok";
+    String id = "m";
+    int iDireccion = 0;
 
     public Objeto(){
         //placeholder
@@ -27,9 +29,21 @@ public class Objeto<T> {
         this.value = value;
 
     }
+    public Objeto(int type, T value , String id, int iDireccion) {
+        this.type= type;
+        this.value = value;
+        this.id  = id;
+        this.iDireccion = iDireccion;
+
+    }
+    public Objeto(int type, String id, int iDireccion) {
+        this.type= type;
+        this.id  = id;
+        this.iDireccion = iDireccion;
+    }
 
     public String toString() {
-        return "[type: "+type+" , Value: " + this.value + "]";
+        return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.iDireccion  + "]";
     }
 
     public int getType() {
@@ -74,5 +88,21 @@ public class Objeto<T> {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getiDireccion() {
+        return iDireccion;
+    }
+
+    public void setiDireccion(int iDireccion) {
+        this.iDireccion = iDireccion;
     }
 }

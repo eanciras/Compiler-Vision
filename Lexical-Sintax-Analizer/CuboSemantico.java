@@ -51,18 +51,31 @@ public class CuboSemantico {
         cubo[3][2][0] = -1;
         cubo[3][2][1] = -1;
         cubo[3][2][2] = -1;
+
+        //Logica
+        cubo[4][0][0] = 1;
+        cubo[4][0][1] = 1;
+        cubo[4][0][2] = 1;
+        cubo[4][1][0] = 1;
+        cubo[4][1][1] = 1;
+        cubo[4][1][2] = 1;
+        cubo[4][2][0] = 1;
+        cubo[4][2][1] = 1;
+        cubo[4][2][2] = 1;
     }
 
     public static int getValidacion(int operador, int ladoIzq, int ladoDer){
         //Nomeclatura de acuerdo a los tokens definidos en orden
         // "+" = 18, "-" = 19, "/" = 20, "*" = 21, ">" = 22, "<" = 23, "==" = 24, ">=" = 25, "<=" = 26, "!" = 27, "&&" = 28, "||" = 29
         // int = 36, float = 37, char = 38
-        if(ladoIzq<35){ladoIzq+=35;} //Las palabras reservadas int, float y char están en el rango de 6 a 8, se les suma 24 para su validación semantica sin modificar el cubo
-        if(ladoDer<35){ladoDer+=35;} //
+        if(ladoIzq<33){ladoIzq+=27;} //Las palabras reservadas int, float y char están en el rango de 6 a 8, se les suma 24 para su validación semantica sin modificar el cubo
+        if(ladoDer<33){ladoDer+=27;} //
 
-        operador -= 18; //resta 18 para que 0 sea suma y de ahí en delante
-        ladoIzq -= 35;  //resta 36 para que 0 sea int y de ahí en delante
-        ladoDer -= 35;  //resta 36 para que 0 sea int y de ahí en delante
+        operador -= 17; //resta 18 para que 0 sea suma y de ahí en delante
+        ladoIzq -= 33;  //resta 36 para que 0 sea int y de ahí en delante
+        ladoDer -= 33;  //resta 36 para que 0 sea int y de ahí en delante
+
+        if(operador>4){operador = 4;}
 
         if(ladoIzq < 0 || ladoIzq > 2 || ladoDer < 0 || ladoDer > 2) {
             return -1;
