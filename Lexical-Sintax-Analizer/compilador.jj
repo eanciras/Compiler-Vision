@@ -57,15 +57,15 @@ class compilador
         if(error)listaErrores.add("Error found At line "+identificador.beginLine+", column "+identificador.beginColumn+"\n   variable '"+identificador.image+"' has not been declared.");
     }
 
-    private static Objeto search(){
+    private static Objeto search(String id){
         int i = 0;
         //Realiza una busqueda del contexto global al local
         for(i = 0; i < listaContextos.size(); i++){
-            if(listaContextos.get(i).obtenerVar(token.image)!=null){
-                return listaContextos.get(i).obtenerVar(token.image);
+            if(listaContextos.get(i).obtenerVar(id)!=null){
+                return listaContextos.get(i).obtenerVar(id);
             }
         }
-        listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n   variable '"+token.image+"' was not found.");
+        listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n   variable '"+id+"' was not found.");
         token.image = "0";
 
         return new Objeto();
@@ -208,11 +208,36 @@ void ESTATUTO():
 
 void ASIGNACION():
 {
-Objeto var;
+Objeto var = new Objeto(0,0,0);
 Token identificador;
+int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
+Cuadruplo cuadActual = new Cuadruplo();
 }
 {
-    identificador = <ID> <EQUAL> MEGAEXPRESION() <SEMICOLON>{}
+    identificador = <ID>{
+        var = search(token.image);
+        OperandStack.push(var.getiDireccion());
+        TypeStack.push(var.getType()+33);
+        System.out.println(var);
+        System.out.println(OperandStack.peek());
+        } <EQUAL>{
+          OperatorStack.push(token.kind);
+        } MEGAEXPRESION() <SEMICOLON>{
+            if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
+                if (OperatorStack.peek() == 29)
+                {
+                    opDer = OperandStack.pop();
+                    tyDer = TypeStack.pop();
+                    opIzq = OperandStack.pop();
+                    tyIzq = TypeStack.pop();
+                    opOPerator = OperatorStack.pop();
+                    if(tyIzq == tyDer){
+                         cuadActual.CuadruploSetIzqRes(cudruplosArr.size(),opOPerator-17,opIzq,opDer);
+                         cudruplosArr.add(cuadActual);
+                    }
+                }
+            }
+       }
 }
 
 void MEGAEXPRESION():
@@ -391,10 +416,16 @@ void FACTOR():
 }
 
 void VARCTE():
-{}
+{
+Objeto var = new Objeto(0,0,0);
+}
 {
 	<ID>{
-	    //Objeto i = search();
+	    var = search(token.image);
+	    OperandStack.push(var.getiDireccion());
+        TypeStack.push(var.getType()+33);
+        System.out.println(var);
+        System.out.println(OperandStack.peek());
 	}(<LBRACKET> EXP() <RBRACKET>)?  |<cte_i>{
 	        //OperandStack.push(Integer.parseInt(token.image));
 	        OperandStack.push(memConstante.asignacionMemoriaEntera(Integer.parseInt(token.image)));
@@ -479,9 +510,11 @@ Objeto var = new Objeto(0,0,0);   //La variable con tipo y valor
 	    var.setType(tipo);
 	    if(tipo == 0){
 	        var.setiDireccion(memGlobal.asignacionMemoriaEntera(0));
+	        decl(identificador,var);
 	    }
 	    if(tipo== 1){
         	var.setiDireccion(memGlobal.asignacionMemoriaFlotante(0));
+        	decl(identificador,var);
         }
 
 	} (<EQUAL> MEGAEXPRESION())? {
@@ -494,7 +527,7 @@ void MODULO():
     listaContextos.addElement(new TablaVariables());
 }
 {
-	MODULO_TIPO() <ID> <LPHARENTESIS> MODULO_AUX() <RPHARENTESIS> BLOQUE()
+	MODULO_TIPO() <ID> <LPHARENTESIS> MODULO_AUX() <RPHARENTESIS> BLOQUE() {listaContextos.remove(listaContextos.lastElement());}
 }
 
 void MODULO_TIPO():
