@@ -218,8 +218,6 @@ Cuadruplo cuadActual = new Cuadruplo();
         var = search(token.image);
         OperandStack.push(var.getiDireccion());
         TypeStack.push(var.getType()+33);
-        System.out.println(var);
-        System.out.println(OperandStack.peek());
         } <EQUAL>{
           OperatorStack.push(token.kind);
         } MEGAEXPRESION() <SEMICOLON>{
@@ -418,15 +416,39 @@ void FACTOR():
 void VARCTE():
 {
 Objeto var = new Objeto(0,0,0);
+int opIzq,opRes = 0, tyRes = 8;
+Cuadruplo cuadVer = new Cuadruplo();
+Cuadruplo cuadActual = new Cuadruplo();
 }
 {
 	<ID>{
 	    var = search(token.image);
 	    OperandStack.push(var.getiDireccion());
         TypeStack.push(var.getType()+33);
-        System.out.println(var);
-        System.out.println(OperandStack.peek());
-	}(<LBRACKET> EXP() <RBRACKET>)?  |<cte_i>{
+	}(<LBRACKET>{
+	OperatorStack.push(token.kind);
+	System.out.println(token.image);
+	} EXP() <RBRACKET>{
+	 OperatorStack.pop();
+	 System.out.println(token.image);
+	 opIzq = OperandStack.pop();
+	 tyRes = var.getType();
+	 if(tyRes == 0){
+         opRes = memTemporal.asignacionMemoriaEntera(0);
+      }
+      if(tyRes == 1){
+         opRes = memTemporal.asignacionMemoriaFlotante(0);
+      }
+	 cuadVer.CuadruploSetComplete(cudruplosArr.size(),19,opIzq,0,var.getSize());
+	 cudruplosArr.add(cuadVer);
+	 System.out.println(var);
+	 System.out.println(cuadVer);
+	 cuadActual.CuadruploSetComplete(cudruplosArr.size(),0,opIzq,var.getiDireccion(),opRes);
+     cudruplosArr.add(cuadActual);
+     System.out.println(cuadActual);
+     OperandStack.push(opRes*-1); //direcionamiento indirecto igual a una direcion negativa
+     TypeStack.add(tyRes+33);
+	})?  |<cte_i>{
 	        //OperandStack.push(Integer.parseInt(token.image));
 	        OperandStack.push(memConstante.asignacionMemoriaEntera(Integer.parseInt(token.image)));
             TypeStack.push(token.kind);
@@ -489,9 +511,37 @@ void VARS():
 void VARS_AUX1():
 {
 //TODO Trabajar en el manejo de vectores
+Token identificador;            //El nombre de la variable
+Objeto var = new Objeto(0,0,0);   //La variable con tipo y valor
+int iCuadAntes;
+int iSize;
 }
 {
-	<VECTOR> <ID> <LBRACKET> MEGAEXPRESION() <RBRACKET> (<EQUAL> <LKEY> VARS_AUX1_1() <RKEY>)?
+	<VECTOR> identificador =  <ID> <LBRACKET>{
+	var.setbDim(true);
+	iCuadAntes = cudruplosArr.size();
+	} MEGAEXPRESION(){
+	if(iCuadAntes != cudruplosArr.size()){
+	    iSize= memConstante.accesoMemoriaEntera((cudruplosArr.get(cudruplosArr.size()).getiResultado()));
+	}
+	else{
+	    iSize = memConstante.accesoMemoriaEntera(OperandStack.pop());
+	}
+	} <RBRACKET> {
+        var.setId(identificador.image);
+        var.setType(tipo);
+        if(tipo == 0){
+            var.setiDireccion(memGlobal.asignacionMemoriaEnteraDim(0,iSize));
+            var.setbDim(true);
+            decl(identificador,var);
+        }
+        if(tipo== 1){
+            var.setiDireccion(memGlobal.asignacionMemoriaFlotanteDim(0,iSize));
+            var.setbDim(true);
+            decl(identificador,var);
+           }
+
+    } (<EQUAL> <LKEY> VARS_AUX1_1() <RKEY>)?
 }
 
 void VARS_AUX1_1():
@@ -516,7 +566,6 @@ Objeto var = new Objeto(0,0,0);   //La variable con tipo y valor
         	var.setiDireccion(memGlobal.asignacionMemoriaFlotante(0));
         	decl(identificador,var);
         }
-
 	} (<EQUAL> MEGAEXPRESION())? {
 	}
 	(<","> VARS_AUX2())?

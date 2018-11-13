@@ -3,7 +3,7 @@ public class Cuadruplo {
     /*
     "+" = 0, "-" = 1, "/" = 2, "*" = 3, "==" = 4, "<=" = 5, "<" = 6,
     ">=" = 7, ">" = 8, "!=" = 9, "||" = 10, "&&" = 11 "=" = 12
-    "print" = 13, "era" = 14, "retorno" = 15 "param" = 16
+    "print" = 13, "era" = 14, "retorno" = 15 "param" = 16 "Goto" = 17  "Goto" = 18 "ver" = 19
     */
 
     public void Cuadruplo() {
@@ -148,6 +148,9 @@ public class Cuadruplo {
                 break;
             case 18:
                 op = "GOTOF";
+                break;
+            case 19:
+                op = "VER";
                 break;
         }
         return "["+iNumero+",\t"+ op + ",\t" + iIzquierda + ",\t" + iDerecha + ",\t" + iResultado +   "]";

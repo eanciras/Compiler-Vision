@@ -31,12 +31,38 @@ public class Memoria<T> {
         return iInicioMem + iTamMem + iFlotanteActual - 1;
     }
 
+    public int asignacionMemoriaEnteraDim(int value, int size){
+        int i = 0;
+        while(i<size){
+            iMemoriaEntera[iEnteroAct] = value;
+            iEnteroAct = iEnteroAct + 1;
+            i++;
+        }
+        return iInicioMem + iEnteroAct - 1 - size;
+    }
+
+    public int asignacionMemoriaFlotanteDim(float value, int size){
+        int i = 0;
+        while(i<size){
+            fMemoriaFlotante[iFlotanteActual] = value;
+            iFlotanteActual++;
+            i++;
+        }
+        return iInicioMem + iTamMem + iFlotanteActual - 1 - size;
+    }
+
     public void actualizacionMemoriaEntera(int value , int direccion){
         iMemoriaEntera[iInicioMem-direccion] = value;
     }
 
     public void actualizacionMemoriaFlotante(float value, int direccion){
         fMemoriaFlotante[iInicioMem-direccion] = value;
+    }
+    public int accesoMemoriaEntera(int direccion){
+        return iMemoriaEntera[direccion-iInicioMem];
+    }
+    public float accesoMemoriaFlotante(int direccion){
+        return fMemoriaFlotante[direccion-iInicioMem];
     }
 
 }

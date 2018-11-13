@@ -19,10 +19,13 @@ int main(){
     //int b = 2;
     //int b = 4;
     //c = 3;
+    int vector G[3];
+    int c;
     b = ((1*2-3*4)>5+6*7/8)&&((9*10-11>12-13)&&14+15>17*18);
 
+
     if(1){
-        int a = 5+8;
+        int a = G[5] + 8;
 
        // print("var b = "+b);
     }else{

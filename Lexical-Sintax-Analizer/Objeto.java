@@ -9,6 +9,8 @@ public class Objeto<T> {
     String status = "ok";
     String id = "m";
     int iDireccion = 0;
+    boolean bDim = false;
+    int size;
 
     public Objeto(){
         //placeholder
@@ -104,5 +106,21 @@ public class Objeto<T> {
 
     public void setiDireccion(int iDireccion) {
         this.iDireccion = iDireccion;
+    }
+
+    public boolean isbDim() {
+        return bDim;
+    }
+
+    public void setbDim(boolean bDim) {
+        this.bDim = bDim;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }
