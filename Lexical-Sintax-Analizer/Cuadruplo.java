@@ -149,6 +149,17 @@ public class Cuadruplo {
             case 18:
                 op = "GOTOF";
                 break;
+            case 19:
+                op = "CONTEXT";
+                break;
+
+            case 21:
+                op = "GOSUB";
+                break;
+
+            case 22:
+                op = "EOF";
+                break;
         }
         return "["+iNumero+",\t"+ op + ",\t" + iIzquierda + ",\t" + iDerecha + ",\t" + iResultado +   "]";
     }

@@ -4,24 +4,16 @@ import java.util.Set;
 public class Objeto<T> {
     T value;
     int type = -1;
-    int paramsNum;
-    T ret;
     String status = "ok";
     String id = "m";
-    int iDireccion = 0;
+    int direccion = 0;
 
     public Objeto(){
-        //placeholder
+
     }
 
     public Objeto(String status){
         this.status = status;
-    }
-
-    public Objeto(int type, int paramsNum, T ret){
-        this.type = type;
-        this.paramsNum = paramsNum;
-        this.ret = ret;
     }
 
     public Objeto(int type, T value) {
@@ -29,21 +21,21 @@ public class Objeto<T> {
         this.value = value;
 
     }
-    public Objeto(int type, T value , String id, int iDireccion) {
+    public Objeto(int type, T value , String id, int direccion) {
         this.type= type;
         this.value = value;
         this.id  = id;
-        this.iDireccion = iDireccion;
+        this.direccion = direccion;
 
     }
-    public Objeto(int type, String id, int iDireccion) {
+    public Objeto(int type, String id, int direccion) {
         this.type= type;
         this.id  = id;
-        this.iDireccion = iDireccion;
+        this.direccion = direccion;
     }
 
     public String toString() {
-        return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.iDireccion  + "]";
+        return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.direccion  + "]";
     }
 
     public int getType() {
@@ -62,26 +54,6 @@ public class Objeto<T> {
         return this.value;
     }
 
-    public int getParamsNum() {
-        return paramsNum;
-    }
-
-    public void setParamsNum(int paramsNum) {
-        this.paramsNum = paramsNum;
-    }
-
-    public T isRet() {
-        return ret;
-    }
-
-    public void setRet(T ret) {
-        this.ret = ret;
-    }
-
-    public T getRet() {
-        return ret;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -98,11 +70,11 @@ public class Objeto<T> {
         this.id = id;
     }
 
-    public int getiDireccion() {
-        return iDireccion;
+    public int getDireccion() {
+        return direccion;
     }
 
-    public void setiDireccion(int iDireccion) {
-        this.iDireccion = iDireccion;
+    public void setDireccion(int direccion) {
+        this.direccion = direccion;
     }
 }
