@@ -4,43 +4,33 @@ import java.util.*;
 class compilador
 {
     //Beware those who seek the seecret wich lie within for once you start debugging youl never be the same...
-
-
-
-    int GlobalM = 10000;
-    int LocalM = 20000;
-
-
     private static String printConsole;
     private static int tipo = 0;       //La variable indica el tipo de las siguientes variables declaradas en el renglón
     private static Vector<Objeto> varTemporal = new Vector<Objeto>();
 
-
-    //Todas las funciones se guardán aqui en dferentes espacios (contextos) que contendras los contextos locales
+    //Todas las funciones se guardán aqui en dferentes espacios (contextos) que contendran los contextos locales
     private static Vector<TablaVariables> listaContextos = new Vector<TablaVariables>();
+    private static int contextoNum = -1; //Esta variable apunta a la tabla de contexto actual y se usa para generar el cuadruplo que maneja el apuntador al contexto actual
+    private static Vector<Function> listaFunciones = new Vector<Function>();
+
     private static ArrayList<String> listaErrores = new ArrayList<String>();    //Todos los errores se imprimen después de compilación
     private static ArrayList<String> printConsoleArr = new ArrayList<String>(); //Esta lista se imprime en consola con el comando print al finalizar la compilación
-    //En este arreglo se guarda cada cuadrupplo a medida que se compila el programa, al final se ejecutaran todos los cuadruplos en orden
-    private static ArrayList<Cuadruplo> cuadruplo = new ArrayList<Cuadruplo>();
+
+    //En este arreglo se guarda cada cuadruplo a medida que se compila el programa, al final se ejecutaran todos los cuadruplos en orden
+    public static ArrayList<Cuadruplo> cuadruplosArr = new ArrayList<Cuadruplo>();
     public static CuboSemantico cuboSemantico = new CuboSemantico();
-    public static Objeto[] cuadruplos = new Objeto[4];
-
-
-    public static ArrayList<Cuadruplo> cudruplosArr = new ArrayList<Cuadruplo>();
 
     public static Stack<Integer> OperandStack = new Stack<Integer>();
     public static Stack<Integer> OperatorStack = new Stack<Integer>();
     public static Stack<Integer> TypeStack = new Stack<Integer>();
     public static Stack<Integer> JumpStack = new Stack<Integer>();
     public static Stack<Integer> ReturnStack = new Stack<Integer>();
+    public static Stack<Integer> PendingGOTOStack = new Stack<Integer>();
 
     private static Memoria memGlobal = new Memoria(10000,20000);
     private static Memoria memLocal = new Memoria(20000,30000);
     private static Memoria memTemporal = new Memoria(30000,40000);
     private static Memoria memConstante = new Memoria(40000,50000);
-
-
-
 
     private static void asign(Token identificador, Objeto var){
         boolean error = true;
@@ -59,12 +49,13 @@ class compilador
 
     private static Objeto search(String id){
         int i = 0;
-        //Realiza una busqueda del contexto global al local
-        for(i = 0; i < listaContextos.size(); i++){
-            if(listaContextos.get(i).obtenerVar(id)!=null){
-                return listaContextos.get(i).obtenerVar(id);
-            }
+        //Realiza una busqueda en el contexto global y local
+        if(listaContextos.get(listaContextos.size()-1).obtenerVar(id)!=null){
+            return listaContextos.get(listaContextos.size()-1).obtenerVar(id);
+        }else if(listaContextos.get(0).obtenerVar(id)!=null){
+            return listaContextos.get(0).obtenerVar(id);
         }
+
         listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n   variable '"+id+"' was not found.");
         token.image = "0";
 
@@ -78,11 +69,9 @@ class compilador
         if(var.getStatus().equals("ok")){
             int i = 0;
 
-            //Busca de contexto global a local si la variable existe
-            for(i = 0; i < listaContextos.size(); i++){
-                if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
-                    noVar=true;
-                }
+            //Busca en el contexto global y local si la variable existe
+            if(listaContextos.get(listaContextos.size()-1).obtenerVar(identificador.image)!=null || listaContextos.get(0).obtenerVar(identificador.image)!=null){
+                noVar=true;
             }
 
             if(!noVar){
@@ -109,8 +98,8 @@ class compilador
                     System.out.println(printConsoleArr.get(i));
                 }
                 System.out.println("\n\tBuild Sucessful");
-                for(int i = 0; i < cudruplosArr.size(); i++){
-                    System.out.println(i + " " + cudruplosArr.get(i));
+                for(int i = 0; i < cuadruplosArr.size(); i++){
+                    System.out.println(i + " " + cuadruplosArr.get(i));
                 }
 			}else{
 			System.out.println("\n"+listaErrores.size()+" errors.");
@@ -181,10 +170,19 @@ SKIP:
 
 void Programa():
 {
+Cuadruplo cuadActual = new Cuadruplo();
+contextoNum++;
+cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),19,-1,contextoNum);
+cuadruplosArr.add(cuadActual);
 listaContextos.addElement(new TablaVariables());
 }
 {
-	<PROGRAM> <ID> <SEMICOLON> (LOOKAHEAD(3) VARS())* (MODULO())* BLOQUE() <EOF>
+	<PROGRAM> <ID> <SEMICOLON> (LOOKAHEAD(3) VARS())*{
+	    cuadActual = new Cuadruplo();
+	    cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),17,-1,-1);
+        PendingGOTOStack.push(cuadruplosArr.size());
+        cuadruplosArr.add(cuadActual);
+	} (MODULO())* BLOQUE() <EOF>
 }
 
 void BLOQUE():
@@ -208,7 +206,7 @@ void ESTATUTO():
 
 void ASIGNACION():
 {
-Objeto var = new Objeto(0,0,0);
+Objeto var = new Objeto();
 Token identificador;
 int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
@@ -216,7 +214,7 @@ Cuadruplo cuadActual = new Cuadruplo();
 {
     identificador = <ID>{
         var = search(token.image);
-        OperandStack.push(var.getiDireccion());
+        OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+33);
         } <EQUAL>{
           OperatorStack.push(token.kind);
@@ -230,8 +228,8 @@ Cuadruplo cuadActual = new Cuadruplo();
                     tyIzq = TypeStack.pop();
                     opOPerator = OperatorStack.pop();
                     if(tyIzq == tyDer){
-                         cuadActual.CuadruploSetIzqRes(cudruplosArr.size(),opOPerator-17,opIzq,opDer);
-                         cudruplosArr.add(cuadActual);
+                         cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),opOPerator-17,opIzq,opDer);
+                         cuadruplosArr.add(cuadActual);
                     }
                 }
             }
@@ -267,8 +265,8 @@ Cuadruplo cuadActual = new Cuadruplo();
                        opRes = memTemporal.asignacionMemoriaFlotante(0);
                        OperandStack.push(opRes);
                     }
-                    cuadActual.CuadruploSetComplete(cudruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
-                    cudruplosArr.add(cuadActual);
+                    cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                    cuadruplosArr.add(cuadActual);
                     TypeStack.add(tyRes+33);
                }
            }
@@ -301,8 +299,8 @@ Cuadruplo cuadActual = new Cuadruplo();
                          opRes = memTemporal.asignacionMemoriaFlotante(0);
                          OperandStack.push(opRes);
                       }
-                      cuadActual.CuadruploSetComplete(cudruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
-                      cudruplosArr.add(cuadActual);
+                      cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                      cuadruplosArr.add(cuadActual);
                       TypeStack.add(tyRes+33);
                  }
              }
@@ -327,50 +325,51 @@ int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
 }
 {
-	TERMINO(){
-         if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
-             if (OperatorStack.peek() == 17 || OperatorStack.peek() == 18)
-             {
-                 opDer = OperandStack.pop();
-                 tyDer = TypeStack.pop();
-                 opIzq = OperandStack.pop();
-                 tyIzq = TypeStack.pop();
-                 opOPerator = OperatorStack.pop();
-                 tyRes = cuboSemantico.getValidacion(opOPerator,tyIzq,tyDer);
-                 if(tyRes != -1){
-                     if(tyRes == 0){
-                         opRes = memTemporal.asignacionMemoriaEntera(0);
-                         OperandStack.push(opRes);
-                      }
-                      if(tyRes == 1){
-                         opRes = memTemporal.asignacionMemoriaFlotante(0);
-                         OperandStack.push(opRes);
-                      }
-                      cuadActual.CuadruploSetComplete(cudruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
-                      cudruplosArr.add(cuadActual);
-                      TypeStack.add(tyRes+33);
-                 }
-             }
-         }
-    }
+	TERMINO()
     (LOOKAHEAD(3)
     (<ADDITION>{
         OperatorStack.push(token.kind);
     } | <SUBSTRACTION>{
         OperatorStack.push(token.kind);
     }) EXP())?
+    {
+     if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
+         if (OperatorStack.peek() == 17 || OperatorStack.peek() == 18)
+         {
+             opDer = OperandStack.pop();
+             tyDer = TypeStack.pop();
+             opIzq = OperandStack.pop();
+             tyIzq = TypeStack.pop();
+             opOPerator = OperatorStack.pop();
+             tyRes = cuboSemantico.getValidacion(opOPerator,tyIzq,tyDer);
+             if(tyRes != -1){
+                 if(tyRes == 0){
+                     opRes = memTemporal.asignacionMemoriaEntera(0);
+                     OperandStack.push(opRes);
+                  }
+                  if(tyRes == 1){
+                     opRes = memTemporal.asignacionMemoriaFlotante(0);
+                     OperandStack.push(opRes);
+                  }
+                  cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                  cuadruplosArr.add(cuadActual);
+                  TypeStack.add(tyRes+33);
+             }
+         }
+     }
+    }
 }
 
 void TERMINO():
 {
-int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes = 8,opRes =0;
+//operador DERECHA, operador IZQUIERDA, tipo DERECHA, tipo IZQUIERDA, tipo RESPUESTA, operador RESPUESTA
+int opDer, opIzq, opOPerator, tyDer, tyIzq, tyRes = 8,opRes =0;
 Cuadruplo cuadActual = new Cuadruplo();
 }
 {
 	FACTOR(){
        if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
-                    if (OperatorStack.peek() == 19 || OperatorStack.peek() == 20)
-                    {
+                    if (OperatorStack.peek() == 19 || OperatorStack.peek() == 20){
                         opDer = OperandStack.pop();
                         tyDer = TypeStack.pop();
                         opIzq = OperandStack.pop();
@@ -386,17 +385,18 @@ Cuadruplo cuadActual = new Cuadruplo();
                                 opRes = memTemporal.asignacionMemoriaFlotante(0);
                                 OperandStack.push(opRes);
                              }
-                             cuadActual.CuadruploSetComplete(cudruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
-                             cudruplosArr.add(cuadActual);
+                             cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                             cuadruplosArr.add(cuadActual);
                              TypeStack.add(tyRes+33);
                         }
                     }
                 }
-    } (LOOKAHEAD(3) (<MULTIPLICATION>{
-                         OperatorStack.push(token.kind);
-                       } | <DIVISION>{
-                             OperatorStack.push(token.kind);
-                           })
+    } (LOOKAHEAD(3)
+    (<MULTIPLICATION>{
+        OperatorStack.push(token.kind);
+    } | <DIVISION>{
+        OperatorStack.push(token.kind);
+    })
 	TERMINO())?
 }
 
@@ -415,6 +415,7 @@ void FACTOR():
 
 void VARCTE():
 {
+Objeto var = new Objeto();
 Objeto var = new Objeto(0,0,0);
 int opIzq,opRes = 0, tyRes = 8;
 Cuadruplo cuadVer = new Cuadruplo();
@@ -423,7 +424,7 @@ Cuadruplo cuadActual = new Cuadruplo();
 {
 	<ID>{
 	    var = search(token.image);
-	    OperandStack.push(var.getiDireccion());
+	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+33);
 	}(<LBRACKET>{
 	OperatorStack.push(token.kind);
@@ -461,23 +462,33 @@ Cuadruplo cuadActual = new Cuadruplo();
 
 void CONDICION():
 {
-Cuadruplo cuadActual = new Cuadruplo();
+    Cuadruplo cuadActual = new Cuadruplo();
 }
 {
-	{listaContextos.addElement(new TablaVariables());} <IF> <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS>
-	 {
-	 cuadActual.CuadruploSetIzqRes(cudruplosArr.size(),18,OperandStack.pop(),-1);
-	 JumpStack.push(cudruplosArr.size());
-	 cudruplosArr.add(cuadActual);
-	 }BLOQUE(){
-              cudruplosArr.get(JumpStack.pop()).setiResultado(cudruplosArr.size());
-              	 } CONDICION_AUX() {listaContextos.remove(listaContextos.lastElement());}
+	<IF> <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS>
+	{
+        cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),18,OperandStack.pop(),-1);
+        JumpStack.push(cuadruplosArr.size());
+        cuadruplosArr.add(cuadActual);
+	}BLOQUE(){
+        cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size());
+    } CONDICION_AUX()
 }
 
 void CONDICION_AUX():
 {}
 {
-	(<ELSE> (CONDICION() | BLOQUE()))?
+	({
+        Cuadruplo cuadActual = new Cuadruplo();
+        cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),17,-1,-1);
+        PendingGOTOStack.push(cuadruplosArr.size());
+        cuadruplosArr.add(cuadActual);
+	}<ELSE> (CONDICION() | BLOQUE()))? {
+	    int pendingPos = PendingGOTOStack.pop();
+        Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
+        cuadAux.setiResultado(cuadruplosArr.size());
+        cuadruplosArr.set(pendingPos, cuadAux);
+	}
 }
 
 void CICLO():
@@ -486,17 +497,17 @@ Cuadruplo cuadGotof = new Cuadruplo();
 Cuadruplo cuadGoto = new Cuadruplo();
 }
 {
-	{listaContextos.addElement(new TablaVariables());} <WHILE>{
-	    JumpStack.push(cudruplosArr.size());
+    <WHILE>{
+	    JumpStack.push(cuadruplosArr.size());
 	} <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS>{
-	    cuadGotof.CuadruploSetIzqRes(cudruplosArr.size(),18,OperandStack.pop(),-1);
-    	JumpStack.push(cudruplosArr.size());
-    	cudruplosArr.add(cuadGotof);
+	    cuadGotof.CuadruploSetIzqRes(cuadruplosArr.size(),18,OperandStack.pop(),-1);
+    	JumpStack.push(cuadruplosArr.size());
+    	cuadruplosArr.add(cuadGotof);
 	} BLOQUE(){
-	cudruplosArr.get(JumpStack.pop()).setiResultado(cudruplosArr.size()+1);
-	cuadGoto.CuadruploSetIzqRes(cudruplosArr.size(),17,OperandStack.pop(),JumpStack.pop());
-	cudruplosArr.add(cuadGoto);
-	} {listaContextos.remove(listaContextos.lastElement());}
+        cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
+        cuadGoto.CuadruploSetIzqRes(cuadruplosArr.size(),17,OperandStack.pop(),JumpStack.pop());
+        cuadruplosArr.add(cuadGoto);
+	}
 }
 
 void VARS():
@@ -551,19 +562,19 @@ void VARS_AUX1_1():
 }
 void VARS_AUX2():
 {
-Token identificador;            //El nombre de la variable
-Objeto var = new Objeto(0,0,0);   //La variable con tipo y valor
+Token identificador;        //El nombre de la variable
+Objeto var = new Objeto();  //La variable con tipo y valor
 }
 {
 	identificador = <ID> {
 	    var.setId(identificador.image);
 	    var.setType(tipo);
 	    if(tipo == 0){
-	        var.setiDireccion(memGlobal.asignacionMemoriaEntera(0));
+	        var.setDireccion(memGlobal.asignacionMemoriaEntera(0));
 	        decl(identificador,var);
 	    }
 	    if(tipo== 1){
-        	var.setiDireccion(memGlobal.asignacionMemoriaFlotante(0));
+        	var.setDireccion(memGlobal.asignacionMemoriaFlotante(0));
         	decl(identificador,var);
         }
 	} (<EQUAL> MEGAEXPRESION())? {
@@ -573,10 +584,33 @@ Objeto var = new Objeto(0,0,0);   //La variable con tipo y valor
 
 void MODULO():
 {
+    Function function = new Function();
+    Cuadruplo cuadActual = new Cuadruplo();
+    contextoNum++;
+    cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),19,-1,contextoNum);
+    cuadruplosArr.add(cuadActual);
+    int start = cuadruplosArr.size()-1;
     listaContextos.addElement(new TablaVariables());
+    listaFunciones.add(function);
+    Token identificador;
 }
 {
-	MODULO_TIPO() <ID> <LPHARENTESIS> MODULO_AUX() <RPHARENTESIS> BLOQUE() {listaContextos.remove(listaContextos.lastElement());}
+	MODULO_TIPO(){
+	    listaFunciones.get(listaFunciones.size()-1).setReturn_type(token.kind-6);
+	}
+	identificador = <ID> {
+	    if(identificador.image.equalsIgnoreCase("main")){
+	        int pendingPos = PendingGOTOStack.pop();
+	        Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
+	        cuadAux.setiResultado(cuadruplosArr.size()-1);
+            cuadruplosArr.set(pendingPos, cuadAux);
+	    }
+
+	    listaFunciones.get(listaFunciones.size()-1).setId(identificador.image);
+	}<LPHARENTESIS> MODULO_AUX() <RPHARENTESIS>{
+	    listaFunciones.get(listaFunciones.size()-1).setFuncStart(start);
+	    System.out.println(listaFunciones.get(listaFunciones.size()-1));
+	} BLOQUE()
 }
 
 void MODULO_TIPO():
@@ -588,7 +622,11 @@ void MODULO_TIPO():
 void MODULO_AUX():
 {}
 {
-	(TIPO() <ID> (<COMA> MODULO_AUX())?)?
+	(TIPO(){
+	    listaFunciones.get(listaFunciones.size()-1).addParams_Types(token.kind-6);
+	} <ID> {
+	    listaFunciones.get(listaFunciones.size()-1).addParams_list(token.image);
+	} (<COMA> MODULO_AUX())?)?
 }
 
 void RETORNO():
@@ -597,23 +635,36 @@ void RETORNO():
 }
 {
 	<RETURN> (LOOKAHEAD(3) VARCTE(){
-        cuadActual.CuadruploSetRes(cudruplosArr.size(),15,token.kind);
-        cudruplosArr.add(cuadActual);
+        cuadActual.CuadruploSetRes(cuadruplosArr.size(),15,token.kind);
+        cuadruplosArr.add(cuadActual);
     } | EXP(){
-            cuadActual.CuadruploSetRes(cudruplosArr.size(),15,token.kind);
-            cudruplosArr.add(cuadActual);
-        }) <SEMICOLON>
+        cuadActual.CuadruploSetRes(cuadruplosArr.size(),15,token.kind);
+        cuadruplosArr.add(cuadActual);
+    }) <SEMICOLON>
 }
 
 void LLAMADA_FUNC():
 {
 Cuadruplo cuadActual = new Cuadruplo();
+Token identificador;
+int dir = 0;
 }
 {
-	<ID>{
-        cuadActual.CuadruploSetRes(cudruplosArr.size(),14,token.kind);
-        cudruplosArr.add(cuadActual);
-	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> <SEMICOLON>
+	identificador = <ID>{
+	    int i;
+	    System.out.println("funciones: "+listaFunciones.size());
+	    for(i = 0; i < listaFunciones.size(); i++){
+            if(listaFunciones.get(i).getId().equalsIgnoreCase(identificador.image)){
+                dir = listaFunciones.get(i).getFuncStart();
+            }
+        }
+        cuadActual.CuadruploSetRes(cuadruplosArr.size(),14,i);
+        cuadruplosArr.add(cuadActual);
+	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> <SEMICOLON> {
+	    cuadActual = new Cuadruplo();
+	    cuadActual.CuadruploSetRes(cuadruplosArr.size(),21,dir);
+	    cuadruplosArr.add(cuadActual);
+	}
 }
 
 void LLAMADA_AUX(int cont):
@@ -628,13 +679,13 @@ void LLAMADA_PARAM(int cont):
 }
 {
 	LOOKAHEAD(3) <ID>{
-           cuadActual.CuadruploSetRes(cudruplosArr.size(),16,cont);
-           cudruplosArr.add(cuadActual);
-        } |  EXP(){
-          cuadActual.CuadruploSetRes(cudruplosArr.size(),16,cont);
-          cuadActual.setiIzquierda(OperandStack.pop());
-          cudruplosArr.add(cuadActual);
-        }
+        cuadActual.CuadruploSetRes(cuadruplosArr.size(),16,cont);
+        cuadruplosArr.add(cuadActual);
+    } |  EXP(){
+        cuadActual.CuadruploSetRes(cuadruplosArr.size(),16,cont);
+        cuadActual.setiIzquierda(OperandStack.pop());
+        cuadruplosArr.add(cuadActual);
+    }
 }
 
 void TIPO():

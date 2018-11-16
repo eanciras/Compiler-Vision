@@ -3,8 +3,8 @@ int b = 4 + 3;
 
 int funcion1(int a){
  int a;
- a = 3 + 5 -7 * b;
  if(3>9){
+    a = 3 + 5 -7 * b * 1 +6 -8 *2 +1;
     return 8;
  }
  else{
@@ -12,8 +12,6 @@ int funcion1(int a){
  }
 
 }
-
-
 
 int main(){
     //int b = 2;
@@ -36,7 +34,7 @@ int main(){
         float f = 50.1*98.6+5/(4-7);
     }
 
-    //print("Hola mundo! var a = "+a+" good");
-    main(res,1+2);
+    print("Hola mundo! var a = "+a+" good");
+    funcion1(res);
     return 0;
 }

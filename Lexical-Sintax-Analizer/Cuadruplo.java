@@ -150,7 +150,18 @@ public class Cuadruplo {
                 op = "GOTOF";
                 break;
             case 19:
+                op = "CONTEXT";
+                break;
+            case 20:
                 op = "VER";
+                break;
+
+            case 21:
+                op = "GOSUB";
+                break;
+
+            case 22:
+                op = "EOF";
                 break;
         }
         return "["+iNumero+",\t"+ op + ",\t" + iIzquierda + ",\t" + iDerecha + ",\t" + iResultado +   "]";
