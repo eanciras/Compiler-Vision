@@ -1,5 +1,8 @@
 Program test;
 int b = 4 + 3;
+int vector G[10];
+
+int ca = 7 +2;
 
 int funcion1(int a){
  int a;
@@ -17,9 +20,9 @@ int main(){
     //int b = 2;
     //int b = 4;
     //c = 3;
-    int vector G[3];
     int c;
-    b = ((1*2-3*4)>5+6*7/8)&&((9*10-11>12-13)&&14+15>17*18);
+    c=0;
+    b = c +1;
 
 
     if(1){
@@ -30,8 +33,9 @@ int main(){
         int d = 20*8+5/(4-7);
     }
 
-    while(1<2){
+    while(c<20){
         float f = 50.1*98.6+5/(4-7);
+        c=c+1;
     }
 
     print("Hola mundo! var a = "+a+" good");

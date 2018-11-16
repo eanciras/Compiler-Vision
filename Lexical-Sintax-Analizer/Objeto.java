@@ -8,7 +8,7 @@ public class Objeto<T> {
     String id = "m";
     int direccion = 0;
     boolean bDim = false;
-    int size;
+    int size=0;
 
     public Objeto(){
 
@@ -37,7 +37,7 @@ public class Objeto<T> {
     }
 
     public String toString() {
-        return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.direccion  + "]";
+        return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.direccion  +" Size: " + this.size +  "]";
     }
 
     public int getType() {
