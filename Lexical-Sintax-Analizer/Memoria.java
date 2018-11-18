@@ -1,7 +1,5 @@
-import java.lang.reflect.Type;
-import java.util.Set;
 
-public class Memoria<T> {
+public class Memoria {
     private int iInicioMem, iFinMem, iTamMem;
     private int iEnteroAct, iFlotanteActual;
     private int[] iMemoriaEntera;

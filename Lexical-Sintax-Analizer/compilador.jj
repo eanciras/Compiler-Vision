@@ -32,6 +32,8 @@ class compilador
     private static Memoria memTemporal = new Memoria(30000,40000);
     private static Memoria memConstante = new Memoria(40000,50000);
 
+    public static MaquinaVirtual vm;
+
     private static void asign(Token identificador, Objeto var){
         boolean error = true;
 
@@ -84,474 +86,6 @@ class compilador
         }
     }
 
-    public static int accesoMemoriaEntero(int valor){
-            if(valor>=memGlobal.getiInicioMem() && valor<memGlobal.getiFinMem()){
-                return memGlobal.accesoMemoriaEntera(valor);
-            }
-            if(valor>=memLocal.getiInicioMem() && valor<memLocal.getiFinMem()){
-                 return memLocal.accesoMemoriaEntera(valor);
-            }
-            if(valor>=memTemporal.getiInicioMem() && valor<memTemporal.getiFinMem()){
-                return memTemporal.accesoMemoriaEntera(valor);
-            }
-            if(valor>=memConstante.getiInicioMem() && valor<memConstante.getiFinMem()){
-                return memConstante.accesoMemoriaEntera(valor);
-            }
-            return -1;
-        }
-
-        public static float accesoMemoriaFlotante(int valor){
-                valor= valor - 5000;
-                if(valor>=memGlobal.getiInicioMem() && valor<memGlobal.getiFinMem()){
-                    return memGlobal.accesoMemoriaFlotante(valor);
-                }
-                if(valor>=memLocal.getiInicioMem() && valor<memLocal.getiFinMem()){
-                     return memLocal.accesoMemoriaFlotante(valor);
-                }
-                if(valor>=memTemporal.getiInicioMem() && valor<memTemporal.getiFinMem()){
-                    return memTemporal.accesoMemoriaFlotante(valor);
-                }
-                if(valor>=memConstante.getiInicioMem() && valor<memConstante.getiFinMem()){
-                    return memConstante.accesoMemoriaFlotante(valor);
-                }
-                return -1;
-            }
-
-        public static void actualizarMemoriaEntero(int valor, int direccion){
-                if(direccion>=memGlobal.getiInicioMem() && direccion<memGlobal.getiFinMem()){
-                  memGlobal.actualizacionMemoriaEntera(valor,direccion);
-                }
-                if(direccion>=memLocal.getiInicioMem() && direccion<memLocal.getiFinMem()){
-                    memLocal.actualizacionMemoriaEntera(valor,direccion);
-                }
-                if(direccion>=memTemporal.getiInicioMem() && direccion<memTemporal.getiFinMem()){
-                    memTemporal.actualizacionMemoriaEntera(valor,direccion);
-                }
-                if(direccion>=memConstante.getiInicioMem() && direccion<memConstante.getiFinMem()){
-                    memConstante.actualizacionMemoriaEntera(valor,direccion);
-                }
-            }
-
-        public static void actualizarMemoriaFlotante(float valor, int direccion){
-                 direccion= direccion - 5000;
-                if(direccion>=memGlobal.getiInicioMem() && direccion<memGlobal.getiFinMem()){
-                    memGlobal.actualizacionMemoriaFlotante(valor,direccion);
-                }
-                if(direccion>=memLocal.getiInicioMem() && direccion<memLocal.getiFinMem()){
-                    memLocal.actualizacionMemoriaFlotante(valor,direccion);
-                }
-                if(direccion>=memTemporal.getiInicioMem() && direccion<memTemporal.getiFinMem()){
-                    memTemporal.actualizacionMemoriaFlotante(valor,direccion);
-                }
-                if(direccion>=memConstante.getiInicioMem() && direccion<memConstante.getiFinMem()){
-                    memConstante.actualizacionMemoriaFlotante(valor,direccion);
-                }
-            }
-
-        public static boolean isMemEntera(int value) {
-        		String string = String.valueOf(value);
-        		if(string.charAt(1)=='5'){
-        		    return false;
-        		}
-
-            return true;
-        }
-
-        public static void maquinaVirtual(){
-            boolean bEnd = false;
-            Cuadruplo cuadActual = cuadruplosArr.get(0);
-            int opDer,opIzq,opRes;
-            float fValDer,fValIzq,fValRes;
-            int iOperador;
-            while(!bEnd){
-                iOperador=cuadActual.getiOperador();
-                switch (iOperador) {
-                    case 0:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(isMemEntera(opRes)){
-                            actualizarMemoriaEntero((int)(fValIzq + fValDer),opRes);
-                        }
-                        else{
-                            actualizarMemoriaFlotante(fValIzq + fValDer,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-                        System.out.println("suma " + (fValIzq + fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 1:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(isMemEntera(opRes)){
-                            actualizarMemoriaEntero((int)(fValIzq - fValDer),opRes);
-                        }
-                        else{
-                            actualizarMemoriaFlotante(fValIzq - fValDer,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-                        System.out.println("resta " + (fValIzq - fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 2:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(isMemEntera(opRes)){
-                            actualizarMemoriaEntero((int)(fValIzq / fValDer),opRes);
-                        }
-                        else{
-                            actualizarMemoriaFlotante(fValIzq / fValDer,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-                        System.out.println("div " + (fValIzq / fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 3:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(isMemEntera(opRes)){
-                            actualizarMemoriaEntero((int)(fValIzq * fValDer),opRes);
-                        }
-                        else{
-                            actualizarMemoriaFlotante(fValIzq * fValDer,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("mult " + (fValIzq * fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 4:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq == fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("== " + (fValIzq == fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 5:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq <= fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("<= " + (fValIzq <= fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 6:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq < fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("< " + (fValIzq < fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 7:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq >= fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println(">= " + (fValIzq >= fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 8:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq > fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("> " + (fValIzq > fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 9:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq != fValDer){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("!= " + (fValIzq != fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 10:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq == 1 || fValDer == 1){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("|| " + (fValIzq * fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 11:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        opDer = cuadActual.getiDerecha();
-                        if(isMemEntera(opDer)){
-                            fValDer = accesoMemoriaEntero(opDer);
-                        }
-                        else{
-                            fValDer = accesoMemoriaFlotante(opDer);
-                        }
-                        opRes = cuadActual.getiResultado();
-                        if(fValIzq == 1 && fValDer == 1){
-                            actualizarMemoriaEntero(1,opRes);
-                        }
-                        else{
-                            actualizarMemoriaEntero(0,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("&& " + (fValIzq * fValDer));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 12:
-                        opIzq = cuadActual.getiIzquierda();
-                        opRes = cuadActual.getiResultado();
-                        if(isMemEntera(opRes)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                            actualizarMemoriaEntero((int) fValIzq,opRes);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                            actualizarMemoriaFlotante(fValIzq,opRes);
-                        }
-                        System.out.print(cuadActual.getiNumero() + " ");
-
-                        System.out.println("= " + (fValIzq));
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 13:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 14:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 15:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 16:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 17:
-                        opRes = cuadActual.getiResultado();
-                        cuadActual.setiNumero(0);
-                        cuadActual = cuadruplosArr.get(opRes);
-                        break;
-                    case 18:
-                        opIzq = cuadActual.getiIzquierda();
-                        if(isMemEntera(opIzq)){
-                            fValIzq = accesoMemoriaEntero(opIzq);
-                        }
-                        else{
-                            fValIzq = accesoMemoriaFlotante(opIzq);
-                        }
-                        if(fValIzq == 1){
-                            cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                            break;
-                        }
-                        opRes = cuadActual.getiResultado();
-                        cuadActual.setiNumero(0);
-                        cuadActual = cuadruplosArr.get(opRes);
-                        break;
-                    case 19:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 20:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 21:
-                        cuadActual = cuadruplosArr.get((cuadActual.getiNumero()+1));
-                        break;
-                    case 22:
-                        bEnd = true;
-                        break;
-                    }
-                }
-        }
-
     public static void main( String[] args )throws ParseException, Exception
 	{
 		try
@@ -566,7 +100,8 @@ class compilador
 			    for(int i = 0; i < printConsoleArr.size(); i++){
                     System.out.println(printConsoleArr.get(i));
                 }
-                maquinaVirtual();
+                vm = new MaquinaVirtual(cuadruplosArr, memGlobal, memLocal,memTemporal,memConstante);
+                vm.run();
                 System.out.println("\n\tBuild Sucessful");
                 for(int i = 0; i < cuadruplosArr.size(); i++){
                     System.out.println(i + " " + cuadruplosArr.get(i));
@@ -649,12 +184,12 @@ listaContextos.addElement(new TablaVariables());
 {
 	<PROGRAM> <ID> <SEMICOLON> (LOOKAHEAD(3) VARS())*{
 	    cuadActual = new Cuadruplo();
-	    cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),17,-1,-1);
+	    cuadActual.CuadruploSetIzqRes(token.beginLine,17,-1,-1);
         PendingGOTOStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
 	} (MODULO())* BLOQUE() <EOF>{
 	cuadActual = new Cuadruplo();
-	cuadActual.CuadruploSetRes(cuadruplosArr.size(),22,1);
+	cuadActual.CuadruploSetRes(token.beginLine,22,1);
     cuadruplosArr.add(cuadActual);
 	}
 }
@@ -702,7 +237,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                     tyIzq = TypeStack.pop();
                     opOPerator = OperatorStack.pop();
                     if(tyIzq == tyDer){
-                         cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),opOPerator-17,opDer,opIzq);
+                         cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                          cuadruplosArr.add(cuadActual);
                     }
                 }
@@ -739,7 +274,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                        opRes = memTemporal.asignacionMemoriaFlotante(0);
                        OperandStack.push(opRes);
                     }
-                    cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                    cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                     cuadruplosArr.add(cuadActual);
                     TypeStack.add(tyRes+33);
                }
@@ -773,7 +308,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                          opRes = memTemporal.asignacionMemoriaFlotante(0);
                          OperandStack.push(opRes);
                       }
-                      cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                      cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                       cuadruplosArr.add(cuadActual);
                       TypeStack.add(tyRes+33);
                  }
@@ -825,7 +360,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                      opRes = memTemporal.asignacionMemoriaFlotante(0);
                      OperandStack.push(opRes);
                   }
-                  cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                  cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                   cuadruplosArr.add(cuadActual);
                   TypeStack.add(tyRes+33);
              }
@@ -859,7 +394,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                                 opRes = memTemporal.asignacionMemoriaFlotante(0);
                                 OperandStack.push(opRes);
                              }
-                             cuadActual.CuadruploSetComplete(cuadruplosArr.size(),opOPerator-17,opIzq,opDer,opRes);
+                             cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                              cuadruplosArr.add(cuadActual);
                              TypeStack.add(tyRes+33);
                         }
@@ -913,11 +448,11 @@ Cuadruplo cuadActual = new Cuadruplo();
           if(tyRes == 1){
              opRes = memTemporal.asignacionMemoriaFlotante(0);
           }
-    	 cuadVer.CuadruploSetComplete(cuadruplosArr.size(),20,opIzq,0,var.getSize());
+    	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
     	 cuadruplosArr.add(cuadVer);
     	 System.out.println(var);
     	 System.out.println(cuadVer);
-    	 cuadActual.CuadruploSetComplete(cuadruplosArr.size(),0,opIzq,var.getDireccion(),opRes);
+    	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,var.getDireccion(),opRes);
          cuadruplosArr.add(cuadActual);
          System.out.println(cuadActual);
          OperandStack.push(opRes);
@@ -940,7 +475,7 @@ void CONDICION():
 {
 	<IF> <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS>
 	{
-        cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),18,OperandStack.pop(),-1);
+        cuadActual.CuadruploSetIzqRes(token.beginLine,18,OperandStack.pop(),-1);
         JumpStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
 	}BLOQUE(){
@@ -953,7 +488,7 @@ void CONDICION_AUX():
 {
 	({
         Cuadruplo cuadActual = new Cuadruplo();
-        cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),17,-1,-1);
+        cuadActual.CuadruploSetIzqRes(token.beginLine,17,-1,-1);
         PendingGOTOStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
 	}<ELSE> (CONDICION() | BLOQUE()))? {
@@ -973,12 +508,12 @@ Cuadruplo cuadGoto = new Cuadruplo();
     <WHILE>{
 	    JumpStack.push(cuadruplosArr.size());
 	} <LPHARENTESIS> MEGAEXPRESION() <RPHARENTESIS>{
-	    cuadGotof.CuadruploSetIzqRes(cuadruplosArr.size(),18,OperandStack.pop(),-1);
+	    cuadGotof.CuadruploSetIzqRes(token.beginLine,18,OperandStack.pop(),-1);
     	JumpStack.push(cuadruplosArr.size());
     	cuadruplosArr.add(cuadGotof);
 	} BLOQUE(){
         cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
-        cuadGoto.CuadruploSetIzqRes(cuadruplosArr.size(),17,OperandStack.pop(),JumpStack.pop());
+        cuadGoto.CuadruploSetIzqRes(token.beginLine,17,OperandStack.pop(),JumpStack.pop());
         cuadruplosArr.add(cuadGoto);
 	}
 }
@@ -1050,7 +585,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                                        tyIzq = TypeStack.pop();
                                        opOPerator = OperatorStack.pop();
                                        if(tyIzq == tyDer){
-                                            cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),opOPerator-17,opDer,opIzq);
+                                            cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                                             cuadruplosArr.add(cuadActual);
                                        }
                                    }
@@ -1090,7 +625,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                                     tyIzq = TypeStack.pop();
                                     opOPerator = OperatorStack.pop();
                                     if(tyIzq == tyDer){
-                                         cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),opOPerator-17,opDer,opIzq);
+                                         cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                                          cuadruplosArr.add(cuadActual);
                                     }
                                 }
@@ -1152,10 +687,10 @@ void RETORNO():
 }
 {
 	<RETURN> (LOOKAHEAD(3) VARCTE(){
-        cuadActual.CuadruploSetRes(cuadruplosArr.size(),15,token.kind);
+        cuadActual.CuadruploSetRes(token.beginLine,15,token.kind);
         cuadruplosArr.add(cuadActual);
     } | EXP(){
-        cuadActual.CuadruploSetRes(cuadruplosArr.size(),15,token.kind);
+        cuadActual.CuadruploSetRes(token.beginLine,15,token.kind);
         cuadruplosArr.add(cuadActual);
     }) <SEMICOLON>
 }
@@ -1175,11 +710,11 @@ int dir = 0;
                 dir = listaFunciones.get(i).getFuncStart();
             }
         }
-        cuadActual.CuadruploSetRes(cuadruplosArr.size(),14,i);
+        cuadActual.CuadruploSetRes(token.beginLine,14,i);
         cuadruplosArr.add(cuadActual);
 	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> <SEMICOLON> {
 	    cuadActual = new Cuadruplo();
-	    cuadActual.CuadruploSetRes(cuadruplosArr.size(),21,dir);
+	    cuadActual.CuadruploSetRes(token.beginLine,21,dir);
 	    cuadruplosArr.add(cuadActual);
 	}
 }
@@ -1196,10 +731,10 @@ void LLAMADA_PARAM(int cont):
 }
 {
 	LOOKAHEAD(3) <ID>{
-        cuadActual.CuadruploSetRes(cuadruplosArr.size(),16,cont);
+        cuadActual.CuadruploSetRes(token.beginLine,16,cont);
         cuadruplosArr.add(cuadActual);
     } |  EXP(){
-        cuadActual.CuadruploSetRes(cuadruplosArr.size(),16,cont);
+        cuadActual.CuadruploSetRes(token.beginLine,16,cont);
         cuadActual.setiIzquierda(OperandStack.pop());
         cuadruplosArr.add(cuadActual);
     }
