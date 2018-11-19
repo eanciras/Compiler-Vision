@@ -246,7 +246,9 @@ Cuadruplo cuadVer = new Cuadruplo();
                }
                  cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
                  cuadruplosArr.add(cuadVer);
-                 OperandStack.pop();
+                 cuadActual = new Cuadruplo();
+                 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,OperandStack.pop(),opRes);
+             cuadruplosArr.add(cuadActual);
              OperandStack.push(opRes);
               TypeStack.add(tyRes+34);
       break;
@@ -1195,13 +1197,13 @@ int cuadSize = cuadruplosArr.size(), opRes;
     finally { jj_save(10, xla); }
   }
 
-  static private boolean jj_3R_30() {
-    if (jj_3R_42()) return true;
+  static private boolean jj_3R_17() {
+    if (jj_3R_27()) return true;
     return false;
   }
 
-  static private boolean jj_3R_17() {
-    if (jj_3R_27()) return true;
+  static private boolean jj_3R_30() {
+    if (jj_3R_42()) return true;
     return false;
   }
 
@@ -1258,11 +1260,6 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_29() {
-    if (jj_3R_41()) return true;
-    return false;
-  }
-
   static private boolean jj_3R_44() {
     if (jj_scan_token(RETURN)) return true;
     return false;
@@ -1273,6 +1270,11 @@ int cuadSize = cuadruplosArr.size(), opRes;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_6()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_29() {
+    if (jj_3R_41()) return true;
     return false;
   }
 
@@ -1427,6 +1429,13 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
+  static private boolean jj_3R_23() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_37()) jj_scanpos = xsp;
+    return false;
+  }
+
   static private boolean jj_3R_6() {
     if (jj_scan_token(ID)) return true;
     Token xsp;
@@ -1434,13 +1443,6 @@ int cuadSize = cuadruplosArr.size(), opRes;
     if (jj_3R_20()) jj_scanpos = xsp;
     if (jj_scan_token(EQUAL)) return true;
     if (jj_3R_21()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_23() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_37()) jj_scanpos = xsp;
     return false;
   }
 
@@ -1526,13 +1528,13 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_31() {
-    if (jj_3R_43()) return true;
+  static private boolean jj_3R_18() {
+    if (jj_3R_28()) return true;
     return false;
   }
 
-  static private boolean jj_3R_18() {
-    if (jj_3R_28()) return true;
+  static private boolean jj_3R_31() {
+    if (jj_3R_43()) return true;
     return false;
   }
 

@@ -14,7 +14,7 @@ int main(){
 
 
     while(i<10){
-        b =b+ 7+i;
+       // b =b+ 7+i;
 
         t[i] = i *20;
         i=i+1;

@@ -239,7 +239,7 @@ Cuadruplo cuadVer = new Cuadruplo();
          	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
          	 cuadruplosArr.add(cuadVer);
          	 cuadActual = new Cuadruplo();
-         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,,opRes);
+         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,OperandStack.pop(),opRes);
              cuadruplosArr.add(cuadActual);
              OperandStack.push(opRes);
               TypeStack.add(tyRes+34);
