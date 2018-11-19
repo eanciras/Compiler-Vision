@@ -1,0 +1,49 @@
+Program test;
+int b = 2;
+int vector G[10];
+
+int ca = 7 +2;
+
+int funcion1(int a){
+ int c = a;
+ b = b*2;
+ print(b+"\n");
+ if(3>9){
+    a = 3 + 5 -7 * b * 1 +6 -8 *2 +1;
+    return 8;
+ }
+ else{
+    return 9;
+ }
+}
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+int main(){
+    int c;
+    int a = 21;
+    c = 5;
+    b = c +1;
+
+    if(1){
+       //a = G[5] + 8/0;
+        a = a+1;
+       //print("var b = "+b);
+    }else{
+        int d = 20*8+5/(4-7);
+    }
+
+    while(c<20){
+        float f = 50.1*98.6+5/(4-7);
+        c=c+1;
+    }
+
+    print("b = "+b+" deberia dar : 12\n");
+    print("c = "+c+" debería dar : 9 -creo-\n");
+
+    aWeboPrro();
+
+    return 0;
+}

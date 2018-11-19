@@ -217,16 +217,36 @@ Objeto var = new Objeto();
 Token identificador;
 int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
+Cuadruplo cuadVer = new Cuadruplo();
 }
 {
     identificador = <ID>{
         var = search(token.image);
         OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
-    } <EQUAL>{
+    }(<LBRACKET>{
+         	OperatorStack.push(token.kind);
+         	} EXP() <RBRACKET>{
+         	 OperatorStack.pop();
+         	 opIzq = OperandStack.pop();
+         	 tyRes = var.getType();
+         	 if(tyRes == 0){
+                  opRes = memTemporal.asignacionMemoriaEntera(0);
+               }
+               if(tyRes == 1){
+                  opRes = memTemporal.asignacionMemoriaFlotante(0);
+               }
+         	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
+         	 cuadruplosArr.add(cuadVer);
+         	 cuadActual = new Cuadruplo();
+         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,,opRes);
+             cuadruplosArr.add(cuadActual);
+             OperandStack.push(opRes);
+              TypeStack.add(tyRes+34);
+         	})? <EQUAL>{
         OperatorStack.push(token.kind);
     } MEGAEXPRESION(){
-         if(!OperatorStack.isEmpty()){
+         if(!(OperatorStack.isEmpty())){
              if (OperatorStack.peek() == 29){
                  opDer = OperandStack.pop();
                  tyDer = TypeStack.pop();
@@ -234,6 +254,7 @@ Cuadruplo cuadActual = new Cuadruplo();
                  tyIzq = TypeStack.pop();
                  opOPerator = OperatorStack.pop();
                  if(tyIzq == tyDer){
+                      cuadActual = new Cuadruplo();
                       cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                       cuadruplosArr.add(cuadActual);
                  }
@@ -444,9 +465,11 @@ boolean end = false;
 	}
 	| <ID>{
 	    var = search(token.image);
+	    System.out.println(var);
 	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
 	}(<LBRACKET>{
+	    System.out.println(token.kind);
     	OperatorStack.push(token.kind);
     	} EXP() <RBRACKET>{
     	 OperatorStack.pop();
@@ -486,6 +509,7 @@ void CONDICION():
         JumpStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
 	}BLOQUE(){
+
         cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
     } CONDICION_AUX()
 }
@@ -520,7 +544,7 @@ Cuadruplo cuadGoto = new Cuadruplo();
     	cuadruplosArr.add(cuadGotof);
 	} BLOQUE(){
         cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
-        cuadGoto.CuadruploSetIzqRes(token.beginLine,17,OperandStack.pop(),JumpStack.pop());
+        cuadGoto.CuadruploSetRes(token.beginLine,17,JumpStack.pop());
         cuadruplosArr.add(cuadGoto);
 	}
 }
@@ -567,7 +591,6 @@ int iSize;
             var.setSize(iSize);
             decl(identificador,var);
            }
-
     } (<EQUAL>{
               	    OperandStack.push(var.getDireccion());
                       TypeStack.push(var.getType()+34);
@@ -686,6 +709,7 @@ Objeto var = new Objeto();
 }
 {
 	(TIPO(){
+	    System.out.println("token.kind " +token.kind);
 	    var.setType(token.kind-6);
 	    listaFunciones.get(listaFunciones.size()-1).addParams_Types(token.kind-6);
 	} <ID> {

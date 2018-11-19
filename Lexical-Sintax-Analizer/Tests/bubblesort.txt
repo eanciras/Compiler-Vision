@@ -1,0 +1,31 @@
+Program bubblesort;
+
+
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+int main(){
+
+    int i = 0;
+    int vector t[10];
+    int b = 6;
+
+
+    while(i<10){
+        b =b+ 7+i;
+
+        t[i] = i *20;
+        i=i+1;
+
+    }
+    b = t[9];
+
+   print("b "+b+"\n");
+   print("G["+i+"]\n");
+
+    aWeboPrro();
+
+    return 0;
+}

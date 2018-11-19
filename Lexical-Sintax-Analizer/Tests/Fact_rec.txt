@@ -1,0 +1,28 @@
+Program Fact_rec;
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+int fact_rec(int valor){
+    if(valor==0){
+        return 1;
+    }
+    else{
+        int aux = valor -1;
+        print("aux = "+aux+" \n");
+        return (valor * (fact_rec(aux)));
+    }
+ }
+
+
+int main(){
+     int resultado=0;
+
+
+    resultado = fact_rec(resultado);
+    print("c = "+resultado+" debería dar : 9 -creo-\n");
+
+     aWeboPrro();
+
+     return 0;
+ }

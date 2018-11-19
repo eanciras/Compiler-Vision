@@ -1,0 +1,20 @@
+Program Fact_iter;
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+int main(){
+    int valor, i=1,resultado=1;
+    while(i<=5){
+        resultado = resultado * i;
+        i=i+1;
+    }
+
+
+    print("c = "+resultado+" debería dar : 120 \n");
+
+    aWeboPrro();
+
+    return 0;
+}

@@ -1,0 +1,25 @@
+Program Fibo_iter;
+
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+int main(){
+
+    int actual, ant1=1, ant2=1, i;
+    i=2;
+    while(i<10){
+        actual = ant1 + ant2;
+        ant2 = ant1;
+        ant1 = actual;
+        i=i+1;
+    }
+
+
+    print("c = "+actual+" debería dar : 9 -creo-\n");
+
+    aWeboPrro();
+
+    return 0;
+}
