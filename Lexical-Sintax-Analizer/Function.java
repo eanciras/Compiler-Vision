@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class Function {
     private int return_type = -1;
     private String id = " ";
-    private ArrayList<String> params_list = new ArrayList<>();
+    private ArrayList<Integer> params_list = new ArrayList<>();
     private ArrayList<Integer> params_Types = new ArrayList<>();
     private int funcSize = 0;
     private int funcStart = 0;
@@ -24,11 +24,11 @@ public class Function {
         this.return_type = return_type;
     }
 
-    public ArrayList<String> getParams_list() {
+    public ArrayList<Integer> getParams_list() {
         return params_list;
     }
 
-    public void addParams_list(String params_list) {
+    public void addParams_list(Integer params_list) {
         this.params_list.add(params_list);
     }
 

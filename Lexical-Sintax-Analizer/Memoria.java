@@ -1,82 +1,104 @@
+import javax.swing.*;
 
 public class Memoria {
-    private int iInicioMem, iFinMem, iTamMem;
-    private int iEnteroAct, iFlotanteActual;
-    private int[] iMemoriaEntera;
-    private float[] fMemoriaFlotante;
+    private int inicioMem, finMem, tamMem;
+    private int enteroAct, flotanteActual, charActual;
+    private int[] memoriaEntera;
+    private float[] memoriaFlotante;
+    private char[][] memoriaChar;
 
-    public Memoria(int iInicioMem, int iFinMem) {
-        this.iInicioMem = iInicioMem;
-        this.iFinMem = iFinMem;
+    public Memoria(int inicioMem, int finMem) {
+        this.inicioMem = inicioMem;
+        this.finMem = finMem;
 
-        iTamMem = (iFinMem - iInicioMem) / 2;
-        iMemoriaEntera = new int[iTamMem];
-        fMemoriaFlotante = new float[iTamMem];
+        tamMem = (finMem - inicioMem) / 3;
+        memoriaEntera = new int[tamMem];
+        memoriaFlotante = new float[tamMem];
+        memoriaChar = new char[tamMem][1];
 
-        iEnteroAct = 0;
-        iFlotanteActual = 0;
+        enteroAct = 0;
+        flotanteActual = 0;
+        charActual = 0;
     }
 
     public int asignacionMemoriaEntera(int value){
-        iMemoriaEntera[iEnteroAct] = value;
-        iEnteroAct = iEnteroAct + 1;
-        return iInicioMem + iEnteroAct - 1;
+        memoriaEntera[enteroAct] = value;
+        enteroAct = enteroAct + 1;
+        return inicioMem + enteroAct - 1;
     }
 
     public int asignacionMemoriaFlotante(float value){
-        fMemoriaFlotante[iFlotanteActual] = value;
-        iFlotanteActual++;
-        return iInicioMem + iTamMem + iFlotanteActual - 1;
+        memoriaFlotante[flotanteActual] = value;
+        flotanteActual++;
+        return inicioMem + tamMem + flotanteActual - 1;
+    }
+
+    public int asignacionMemoriaChar(char[] value){
+        memoriaChar[charActual] = value;
+        charActual++;
+        return inicioMem + (2*tamMem) + charActual - 1;
     }
 
     public int asignacionMemoriaEnteraDim(int value, int size){
         int i = 0;
-        System.out.println(iEnteroAct);
+        System.out.println(enteroAct);
         while(i<size){
-            iMemoriaEntera[iEnteroAct] = value;
-            iEnteroAct = iEnteroAct + 1;
+            memoriaEntera[enteroAct] = value;
+            enteroAct = enteroAct + 1;
             i++;
         }
-        return iInicioMem + iEnteroAct - size;
+        return inicioMem + enteroAct - size;
     }
 
     public int asignacionMemoriaFlotanteDim(float value, int size){
         int i = 0;
         while(i<size){
-            fMemoriaFlotante[iFlotanteActual] = value;
-            iFlotanteActual++;
+            memoriaFlotante[flotanteActual] = value;
+            flotanteActual++;
             i++;
         }
-        return iInicioMem + iTamMem + iFlotanteActual - 1 - size;
+        return inicioMem + tamMem + flotanteActual - 1 - size;
     }
 
     public void actualizacionMemoriaEntera(int value , int direccion){
-        iMemoriaEntera[direccion-iInicioMem] = value;
+        memoriaEntera[direccion-inicioMem] = value;
     }
 
     public void actualizacionMemoriaFlotante(float value, int direccion){
-        fMemoriaFlotante[direccion-iInicioMem] = value;
+        memoriaFlotante[direccion-inicioMem] = value;
     }
+
+    public void actualiacionMemoriaChar(char[] value, int direccion){
+        memoriaChar[direccion-inicioMem] = value;
+    }
+
     public int accesoMemoriaEntera(int direccion){
-        return iMemoriaEntera[direccion-iInicioMem];
+        return memoriaEntera[direccion-inicioMem];
     }
+
     public float accesoMemoriaFlotante(int direccion){
-        return fMemoriaFlotante[direccion-iInicioMem];
+        direccion = direccion - tamMem;
+        return memoriaFlotante[direccion-inicioMem];
     }
 
-    public int getiInicioMem() {
-        return iInicioMem;
+    public char[] accesoMemoriaChar(int direccion){
+        direccion = direccion - (2*tamMem);
+        return memoriaChar[direccion-inicioMem];
     }
 
-    public void setiInicioMem(int iInicioMem) {
-        this.iInicioMem = iInicioMem;
+    public int getInicioMem() {
+        return inicioMem;
     }
 
-    public int getiFinMem() {
-        return iFinMem;
+    public void setInicioMem(int inicioMem) {
+        this.inicioMem = inicioMem;
     }
 
-    public void setiFinMem(int iFinMem) {
-        this.iFinMem = iFinMem;
+    public int getFinMem() {
+        return finMem;
+    }
+
+    public void setFinMem(int finMem) {
+        this.finMem = finMem;
     }
 }

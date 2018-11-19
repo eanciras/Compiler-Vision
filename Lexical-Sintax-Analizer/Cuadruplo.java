@@ -150,7 +150,7 @@ public class Cuadruplo {
                 op = "GOTOF";
                 break;
             case 19:
-                op = "CONTEXT";
+                op = "CONTXT";
                 break;
             case 20:
                 op = "VER";
