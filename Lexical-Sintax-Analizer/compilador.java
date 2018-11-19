@@ -51,7 +51,8 @@ class compilador implements compiladorConstants {
     private static Objeto search(String id){
         int i = 0;
         //Realiza una busqueda en el contexto global y local
-        if(listaContextos.get(listaContextos.size()-1).obtenerVar(id)!=null){
+        System.out.println("num: "+contextoNum+" tama\u00c3\u00b1o: "+listaContextos.size());
+        if(listaContextos.get(contextoNum).obtenerVar(id)!=null){
             return listaContextos.get(listaContextos.size()-1).obtenerVar(id);
         }else if(listaContextos.get(0).obtenerVar(id)!=null){
             return listaContextos.get(0).obtenerVar(id);
@@ -205,6 +206,7 @@ listaContextos.addElement(new TablaVariables());
         break;
       case ID:
         LLAMADA_FUNC();
+        jj_consume_token(SEMICOLON);
         break;
       case RETURN:
         RETORNO();
@@ -509,18 +511,33 @@ Objeto var = new Objeto();
 int opIzq,opRes = 0, tyRes = 8;
 Cuadruplo cuadVer = new Cuadruplo();
 Cuadruplo cuadActual = new Cuadruplo();
-    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case ID:
-      jj_consume_token(ID);
+String id;
+boolean end = false;
+    if (jj_2_8(3)) {
+      id = LLAMADA_FUNC();
+            int type = 0, dir = 0;
+            for(int i = 0; i < listaFunciones.size() && !end; i++){
+            if(listaFunciones.get(i).getId().equalsIgnoreCase(id)){
+                dir = 23;
+                type = listaFunciones.get(i).getReturn_type();
+                end = true;
+            }
+        }
+        OperandStack.push(dir);
+        TypeStack.push(type+34);
+    } else {
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case ID:
+        jj_consume_token(ID);
             var = search(token.image);
             OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case LBRACKET:
-        jj_consume_token(LBRACKET);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case LBRACKET:
+          jj_consume_token(LBRACKET);
         OperatorStack.push(token.kind);
-        EXP();
-        jj_consume_token(RBRACKET);
+          EXP();
+          jj_consume_token(RBRACKET);
          OperatorStack.pop();
          opIzq = OperandStack.pop();
          tyRes = var.getType();
@@ -536,26 +553,27 @@ Cuadruplo cuadActual = new Cuadruplo();
          cuadruplosArr.add(cuadActual);
          OperandStack.push(opRes);
          TypeStack.add(tyRes+34);
+          break;
+        default:
+          jj_la1[11] = jj_gen;
+          ;
+        }
         break;
-      default:
-        jj_la1[11] = jj_gen;
-        ;
-      }
-      break;
-    case cte_i:
-      jj_consume_token(cte_i);
+      case cte_i:
+        jj_consume_token(cte_i);
         OperandStack.push(memConstante.asignacionMemoriaEntera(Integer.parseInt(token.image)));
         TypeStack.push(token.kind);
-      break;
-    case cte_f:
-      jj_consume_token(cte_f);
+        break;
+      case cte_f:
+        jj_consume_token(cte_f);
         OperandStack.push(memConstante.asignacionMemoriaFlotante(Float.parseFloat(token.image)));
         TypeStack.push(token.kind);
-      break;
-    default:
-      jj_la1[12] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+        break;
+      default:
+        jj_la1[12] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
     }
   }
 
@@ -637,7 +655,6 @@ Cuadruplo cuadGoto = new Cuadruplo();
   }
 
   static final public void VARS_AUX1() throws ParseException {
-//TODO Trabajar en el manejo de vectores
 Token identificador;            //El nombre de la variable
 Objeto var = new Objeto();   //La variable con tipo y valor
 int iCuadAntes;
@@ -689,23 +706,23 @@ int iSize;
 int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
     MEGAEXPRESION();
-                               if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
-                                   if (OperatorStack.peek() == 29)
-                                   {
-                                       opDer = OperandStack.pop();
-                                       tyDer = TypeStack.pop();
-                                       opIzq = OperandStack.pop();
-                                       tyIzq = TypeStack.pop();
-                                       opOPerator = OperatorStack.pop();
-                                       if(tyIzq == tyDer){
-                                            cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
-                                            cuadruplosArr.add(cuadActual);
-                                       }
-                                   }
-                               }
+       if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
+           if (OperatorStack.peek() == 29)
+           {
+               opDer = OperandStack.pop();
+               tyDer = TypeStack.pop();
+               opIzq = OperandStack.pop();
+               tyIzq = TypeStack.pop();
+               opOPerator = OperatorStack.pop();
+               if(tyIzq == tyDer){
+                    cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
+                    cuadruplosArr.add(cuadActual);
+               }
+           }
+       }
     label_3:
     while (true) {
-      if (jj_2_8(2)) {
+      if (jj_2_9(2)) {
         ;
       } else {
         break label_3;
@@ -775,7 +792,7 @@ Cuadruplo cuadActual = new Cuadruplo();
     cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),19,-1,contextoNum);
     cuadruplosArr.add(cuadActual);
     int start = cuadruplosArr.size()-1;
-    listaContextos.addElement(new TablaVariables());
+    listaContextos.add(new TablaVariables());
     listaFunciones.add(function);
     Token identificador;
     MODULO_TIPO();
@@ -794,6 +811,9 @@ Cuadruplo cuadActual = new Cuadruplo();
     jj_consume_token(RPHARENTESIS);
             listaFunciones.get(listaFunciones.size()-1).setFuncStart(start);
     BLOQUE();
+            cuadActual = new Cuadruplo();
+            cuadActual.CuadruploSetRes(token.beginLine,23,-1);
+            cuadruplosArr.add(cuadActual);
   }
 
   static final public void MODULO_TIPO() throws ParseException {
@@ -859,14 +879,24 @@ Objeto var = new Objeto();
 
   static final public void RETORNO() throws ParseException {
     Cuadruplo cuadActual = new Cuadruplo();
+    int dir = 0;
     jj_consume_token(RETURN);
-    if (jj_2_9(3)) {
+    if (jj_2_10(3)) {
       VARCTE();
-            int dir;
             if(token.kind-34 == 0){
+                if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 0){
                 dir = memLocal.asignacionMemoriaEntera(Integer.parseInt(token.image));
+                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaEntera(dir));
+                }else{
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\u005cn unexpected return type.");
+                }
             }else{
+                if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 1){
                 dir = memLocal.asignacionMemoriaFlotante(Float.parseFloat(token.image));
+                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaFlotante(dir));
+            }else{
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\u005cn unexpected return type.");
+            }
             }
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
@@ -878,7 +908,7 @@ Objeto var = new Objeto();
       case cte_f:
       case ID:
         EXP();
-        int dir = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
+        dir = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
         break;
@@ -891,7 +921,7 @@ Objeto var = new Objeto();
     jj_consume_token(SEMICOLON);
   }
 
-  static final public void LLAMADA_FUNC() throws ParseException {
+  static final public String LLAMADA_FUNC() throws ParseException {
 Cuadruplo cuadActual = new Cuadruplo();
 Token identificador;
 int dir = 0;
@@ -909,10 +939,12 @@ int dir = 0;
     jj_consume_token(LPHARENTESIS);
     LLAMADA_AUX(1);
     jj_consume_token(RPHARENTESIS);
-    jj_consume_token(SEMICOLON);
             cuadActual = new Cuadruplo();
             cuadActual.CuadruploSetRes(token.beginLine,21,dir);
             cuadruplosArr.add(cuadActual);
+
+            {if (true) return identificador.image;}
+    throw new Error("Missing return statement in function");
   }
 
   static final public void LLAMADA_AUX(int cont) throws ParseException {
@@ -941,7 +973,7 @@ int dir = 0;
 
   static final public void LLAMADA_PARAM(int cont) throws ParseException {
     Cuadruplo cuadActual = new Cuadruplo();
-    if (jj_2_10(3)) {
+    if (jj_2_11(3)) {
       jj_consume_token(ID);
             int opRes = search(token.image).getDireccion();
         cuadActual.CuadruploSetRes(token.beginLine,16,opRes);
@@ -1126,13 +1158,28 @@ int cuadSize = cuadruplosArr.size(), opRes;
     finally { jj_save(9, xla); }
   }
 
-  static private boolean jj_3R_27() {
-    if (jj_3R_38()) return true;
+  static private boolean jj_2_11(int xla) {
+    jj_la = xla; jj_lastpos = jj_scanpos = token;
+    try { return !jj_3_11(); }
+    catch(LookaheadSuccess ls) { return true; }
+    finally { jj_save(10, xla); }
+  }
+
+  static private boolean jj_3R_29() {
+    if (jj_3R_41()) return true;
     return false;
   }
 
-  static private boolean jj_3_10() {
+  static private boolean jj_3R_24() {
+    if (jj_scan_token(cte_i)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_13() {
     if (jj_scan_token(ID)) return true;
+    if (jj_scan_token(LPHARENTESIS)) return true;
+    if (jj_3R_22()) return true;
+    if (jj_scan_token(RPHARENTESIS)) return true;
     return false;
   }
 
@@ -1141,45 +1188,65 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_23() {
-    if (jj_scan_token(cte_f)) return true;
+  static private boolean jj_3R_18() {
+    if (jj_3R_27()) return true;
     return false;
   }
 
-  static private boolean jj_3R_26() {
-    if (jj_3R_37()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_22() {
-    if (jj_scan_token(cte_i)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_19() {
-    if (jj_3R_31()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_17() {
-    if (jj_3R_25()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_36() {
+  static private boolean jj_3R_39() {
     if (jj_scan_token(COMA)) return true;
     return false;
   }
 
-  static private boolean jj_3R_34() {
+  static private boolean jj_3R_37() {
     if (jj_scan_token(LBRACKET)) return true;
     if (jj_3R_9()) return true;
     return false;
   }
 
-  static private boolean jj_3R_24() {
+  static private boolean jj_3R_28() {
+    if (jj_3R_40()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_26() {
     if (jj_scan_token(VECTOR)) return true;
     if (jj_scan_token(ID)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_23() {
+    if (jj_scan_token(ID)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_37()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_20() {
+    if (jj_3R_33()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_17() {
+    if (jj_3R_26()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_10() {
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_4() {
+    if (jj_3R_16()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_17()) {
+    jj_scanpos = xsp;
+    if (jj_3R_18()) return true;
+    }
+    if (jj_scan_token(SEMICOLON)) return true;
     return false;
   }
 
@@ -1188,29 +1255,29 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_40() {
-    if (jj_scan_token(ID)) return true;
+  static private boolean jj_3R_38() {
+    if (jj_scan_token(EQUAL)) return true;
     return false;
   }
 
-  static private boolean jj_3R_14() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_21()) {
-    jj_scanpos = xsp;
-    if (jj_3R_22()) {
-    jj_scanpos = xsp;
-    if (jj_3R_23()) return true;
-    }
-    }
+  static private boolean jj_3_8() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
-  static private boolean jj_3R_21() {
-    if (jj_scan_token(ID)) return true;
+  static private boolean jj_3R_15() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_34()) jj_scanpos = xsp;
+    if (jj_3_8()) {
+    jj_scanpos = xsp;
+    if (jj_3R_23()) {
+    jj_scanpos = xsp;
+    if (jj_3R_24()) {
+    jj_scanpos = xsp;
+    if (jj_3R_25()) return true;
+    }
+    }
+    }
     return false;
   }
 
@@ -1238,16 +1305,21 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_16() {
-    if (jj_3R_24()) return true;
+  static private boolean jj_3R_43() {
+    if (jj_scan_token(RETURN)) return true;
     return false;
   }
 
-  static private boolean jj_3R_33() {
+  static private boolean jj_3R_35() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(18)) jj_scanpos = xsp;
-    if (jj_3R_14()) return true;
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_32() {
+    if (jj_3R_43()) return true;
     return false;
   }
 
@@ -1256,74 +1328,65 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_4() {
-    if (jj_3R_15()) return true;
+  static private boolean jj_3R_27() {
+    if (jj_scan_token(ID)) return true;
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_16()) {
-    jj_scanpos = xsp;
-    if (jj_3R_17()) return true;
-    }
-    if (jj_scan_token(SEMICOLON)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_35() {
-    if (jj_scan_token(EQUAL)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_9() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_8() {
-    if (jj_scan_token(COMA)) return true;
-    if (jj_3R_13()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_32() {
-    if (jj_scan_token(LPHARENTESIS)) return true;
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_20() {
-    Token xsp;
+    if (jj_3R_38()) jj_scanpos = xsp;
     xsp = jj_scanpos;
-    if (jj_3R_32()) {
-    jj_scanpos = xsp;
-    if (jj_3R_33()) return true;
-    }
-    return false;
-  }
-
-  static private boolean jj_3R_30() {
-    if (jj_3R_41()) return true;
+    if (jj_3R_39()) jj_scanpos = xsp;
     return false;
   }
 
   static private boolean jj_3R_41() {
-    if (jj_scan_token(RETURN)) return true;
+    if (jj_scan_token(PRINT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_42() {
+    if (jj_scan_token(WHILE)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_34() {
+    if (jj_scan_token(LPHARENTESIS)) return true;
+    if (jj_3R_20()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_21() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_34()) {
+    jj_scanpos = xsp;
+    if (jj_3R_35()) return true;
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_16() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(6)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(7)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(8)) return true;
+    }
+    }
     return false;
   }
 
   static private boolean jj_3R_6() {
     if (jj_scan_token(ID)) return true;
     if (jj_scan_token(EQUAL)) return true;
-    if (jj_3R_19()) return true;
+    if (jj_3R_20()) return true;
     return false;
   }
 
-  static private boolean jj_3R_25() {
-    if (jj_scan_token(ID)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_35()) jj_scanpos = xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_36()) jj_scanpos = xsp;
+  static private boolean jj_3_9() {
+    if (jj_scan_token(COMA)) return true;
+    if (jj_3R_14()) return true;
     return false;
   }
 
@@ -1332,13 +1395,13 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_39() {
-    if (jj_scan_token(WHILE)) return true;
+  static private boolean jj_3_1() {
+    if (jj_3R_4()) return true;
     return false;
   }
 
-  static private boolean jj_3_1() {
-    if (jj_3R_4()) return true;
+  static private boolean jj_3R_45() {
+    if (jj_3R_9()) return true;
     return false;
   }
 
@@ -1347,22 +1410,22 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_18() {
+  static private boolean jj_3R_19() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_3()) {
     jj_scanpos = xsp;
     if (jj_3_4()) {
     jj_scanpos = xsp;
-    if (jj_3R_26()) {
-    jj_scanpos = xsp;
-    if (jj_3R_27()) {
-    jj_scanpos = xsp;
     if (jj_3R_28()) {
     jj_scanpos = xsp;
     if (jj_3R_29()) {
     jj_scanpos = xsp;
-    if (jj_3R_30()) return true;
+    if (jj_3R_30()) {
+    jj_scanpos = xsp;
+    if (jj_3R_31()) {
+    jj_scanpos = xsp;
+    if (jj_3R_32()) return true;
     }
     }
     }
@@ -1388,18 +1451,33 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
+  static private boolean jj_3R_44() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_11()) {
+    jj_scanpos = xsp;
+    if (jj_3R_45()) return true;
+    }
+    return false;
+  }
+
+  static private boolean jj_3_11() {
+    if (jj_scan_token(ID)) return true;
+    return false;
+  }
+
   static private boolean jj_3R_5() {
-    if (jj_3R_18()) return true;
+    if (jj_3R_19()) return true;
     return false;
   }
 
-  static private boolean jj_3R_29() {
-    if (jj_3R_40()) return true;
+  static private boolean jj_3R_14() {
+    if (jj_3R_20()) return true;
     return false;
   }
 
-  static private boolean jj_3R_38() {
-    if (jj_scan_token(PRINT)) return true;
+  static private boolean jj_3R_31() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
@@ -1409,44 +1487,43 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_31() {
+  static private boolean jj_3R_40() {
+    if (jj_scan_token(IF)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_36() {
+    if (jj_3R_44()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_22() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_36()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_33() {
     if (jj_3R_9()) return true;
     return false;
   }
 
-  static private boolean jj_3R_28() {
-    if (jj_3R_39()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_13() {
-    if (jj_3R_19()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_15() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(6)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(7)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(8)) return true;
-    }
-    }
+  static private boolean jj_3R_30() {
+    if (jj_3R_42()) return true;
     return false;
   }
 
   static private boolean jj_3R_12() {
-    if (jj_3R_20()) return true;
+    if (jj_3R_21()) return true;
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3_7()) jj_scanpos = xsp;
     return false;
   }
 
-  static private boolean jj_3R_37() {
-    if (jj_scan_token(IF)) return true;
+  static private boolean jj_3R_25() {
+    if (jj_scan_token(cte_f)) return true;
     return false;
   }
 
@@ -1475,7 +1552,7 @@ int cuadSize = cuadruplosArr.size(), opRes;
    private static void jj_la1_init_1() {
       jj_la1_1 = new int[] {0x0,0x20,0x20,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x2c,0x0,0x2c,0x0,0x0,0x20,0x0,0x0,0x1,0x0,0x1,0x0,0x2c,0x1,0x2c,0x2c,0x0,0x3c,0x0,0x0,};
    }
-  static final private JJCalls[] jj_2_rtns = new JJCalls[10];
+  static final private JJCalls[] jj_2_rtns = new JJCalls[11];
   static private boolean jj_rescan = false;
   static private int jj_gc = 0;
 
@@ -1724,7 +1801,7 @@ int cuadSize = cuadruplosArr.size(), opRes;
 
   static private void jj_rescan_token() {
     jj_rescan = true;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 11; i++) {
     try {
       JJCalls p = jj_2_rtns[i];
       do {
@@ -1741,6 +1818,7 @@ int cuadSize = cuadruplosArr.size(), opRes;
             case 7: jj_3_8(); break;
             case 8: jj_3_9(); break;
             case 9: jj_3_10(); break;
+            case 10: jj_3_11(); break;
           }
         }
         p = p.next;

@@ -20,7 +20,6 @@ public class Cuadruplo {
         this.iDerecha = iDerecha;
         this.iIzquierda = iIzquierda;
         this.iResultado = iResultado;
-        //System.out.println("Debug" + "["+iNumero+",\t"+ iOperador + ",\t" + iIzquierda + ",\t" + iDerecha + ",\t" + iResultado +   "]");
     }
 
     public void CuadruploSetIzqRes(int iNumero, int iOperador, int iIzquierda, int iResultado) {
@@ -160,6 +159,9 @@ public class Cuadruplo {
                 break;
             case 22:
                 op = "EOF";
+                break;
+            case 23:
+                op = "END_PROC";
                 break;
         }
         return "["+iNumero+",\t"+ op + ",\t" + iIzquierda + ",\t" + iDerecha + ",\t" + iResultado +   "]";

@@ -41,7 +41,6 @@ public class Memoria {
 
     public int asignacionMemoriaEnteraDim(int value, int size){
         int i = 0;
-        System.out.println(enteroAct);
         while(i<size){
             memoriaEntera[enteroAct] = value;
             enteroAct = enteroAct + 1;

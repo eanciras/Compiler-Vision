@@ -52,7 +52,8 @@ class compilador
     private static Objeto search(String id){
         int i = 0;
         //Realiza una busqueda en el contexto global y local
-        if(listaContextos.get(listaContextos.size()-1).obtenerVar(id)!=null){
+        System.out.println("num: "+contextoNum+" tamaño: "+listaContextos.size());
+        if(listaContextos.get(contextoNum).obtenerVar(id)!=null){
             return listaContextos.get(listaContextos.size()-1).obtenerVar(id);
         }else if(listaContextos.get(0).obtenerVar(id)!=null){
             return listaContextos.get(0).obtenerVar(id);
@@ -206,7 +207,7 @@ void BLOQUE_AUX():
 void ESTATUTO():
 {}
 {
-	LOOKAHEAD(3) VARS() | LOOKAHEAD(3) ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() | RETORNO()
+	LOOKAHEAD(3) VARS() | LOOKAHEAD(3) ASIGNACION() | CONDICION() | ESCRITURA() | CICLO() | LLAMADA_FUNC() <SEMICOLON> | RETORNO()
 
 }
 
@@ -425,9 +426,23 @@ Objeto var = new Objeto();
 int opIzq,opRes = 0, tyRes = 8;
 Cuadruplo cuadVer = new Cuadruplo();
 Cuadruplo cuadActual = new Cuadruplo();
+String id;
+boolean end = false;
 }
 {
-	<ID>{
+	LOOKAHEAD(3) id = LLAMADA_FUNC(){
+	    int type = 0, dir = 0;
+	    for(int i = 0; i < listaFunciones.size() && !end; i++){
+            if(listaFunciones.get(i).getId().equalsIgnoreCase(id)){
+                dir = 23;
+                type = listaFunciones.get(i).getReturn_type();
+                end = true;
+            }
+        }
+        OperandStack.push(dir);
+        TypeStack.push(type+34);
+	}
+	| <ID>{
 	    var = search(token.image);
 	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
@@ -521,7 +536,6 @@ void VARS():
 
 void VARS_AUX1():
 {
-//TODO Trabajar en el manejo de vectores
 Token identificador;            //El nombre de la variable
 Objeto var = new Objeto();   //La variable con tipo y valor
 int iCuadAntes;
@@ -568,21 +582,21 @@ Cuadruplo cuadActual = new Cuadruplo();
 }
 {
 	MEGAEXPRESION(){
-                               if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
-                                   if (OperatorStack.peek() == 29)
-                                   {
-                                       opDer = OperandStack.pop();
-                                       tyDer = TypeStack.pop();
-                                       opIzq = OperandStack.pop();
-                                       tyIzq = TypeStack.pop();
-                                       opOPerator = OperatorStack.pop();
-                                       if(tyIzq == tyDer){
-                                            cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
-                                            cuadruplosArr.add(cuadActual);
-                                       }
-                                   }
-                               }
-                          } (LOOKAHEAD(2) <COMA> VARS_AUX1_1())*
+       if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
+           if (OperatorStack.peek() == 29)
+           {
+               opDer = OperandStack.pop();
+               tyDer = TypeStack.pop();
+               opIzq = OperandStack.pop();
+               tyIzq = TypeStack.pop();
+               opOPerator = OperatorStack.pop();
+               if(tyIzq == tyDer){
+                    cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
+                    cuadruplosArr.add(cuadActual);
+               }
+           }
+       }
+    } (LOOKAHEAD(2) <COMA> VARS_AUX1_1())*
 }
 void VARS_AUX2():
 {
@@ -634,7 +648,7 @@ void MODULO():
     cuadActual.CuadruploSetIzqRes(cuadruplosArr.size(),19,-1,contextoNum);
     cuadruplosArr.add(cuadActual);
     int start = cuadruplosArr.size()-1;
-    listaContextos.addElement(new TablaVariables());
+    listaContextos.add(new TablaVariables());
     listaFunciones.add(function);
     Token identificador;
 }
@@ -653,7 +667,11 @@ void MODULO():
 	    listaFunciones.get(listaFunciones.size()-1).setId(identificador.image);
 	}<LPHARENTESIS> MODULO_AUX() <RPHARENTESIS>{
 	    listaFunciones.get(listaFunciones.size()-1).setFuncStart(start);
-	} BLOQUE()
+	} BLOQUE() {
+	    cuadActual = new Cuadruplo();
+	    cuadActual.CuadruploSetRes(token.beginLine,23,-1);
+	    cuadruplosArr.add(cuadActual);
+	}
 }
 
 void MODULO_TIPO():
@@ -688,25 +706,35 @@ Objeto var = new Objeto();
 void RETORNO():
 {
     Cuadruplo cuadActual = new Cuadruplo();
+    int dir = 0;
 }
 {
 	<RETURN> (LOOKAHEAD(3) VARCTE(){
-	    int dir;
 	    if(token.kind-34 == 0){
-	        dir = memLocal.asignacionMemoriaEntera(Integer.parseInt(token.image));
+	        if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 0){
+                dir = memLocal.asignacionMemoriaEntera(Integer.parseInt(token.image));
+                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaEntera(dir));
+	        }else{
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n unexpected return type.");
+	        }
 	    }else{
-	        dir = memLocal.asignacionMemoriaFlotante(Float.parseFloat(token.image));
+	        if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 1){
+                dir = memLocal.asignacionMemoriaFlotante(Float.parseFloat(token.image));
+                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaFlotante(dir));
+            }else{
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n unexpected return type.");
+            }
 	    }
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
     } | EXP(){
-        int dir = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
+        dir = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
     }) <SEMICOLON>
 }
 
-void LLAMADA_FUNC():
+String LLAMADA_FUNC():
 {
 Cuadruplo cuadActual = new Cuadruplo();
 Token identificador;
@@ -724,10 +752,12 @@ int dir = 0;
         }
         cuadActual.CuadruploSetRes(token.beginLine,14,i-1);
         cuadruplosArr.add(cuadActual);
-	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> <SEMICOLON> {
+	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> {
 	    cuadActual = new Cuadruplo();
 	    cuadActual.CuadruploSetRes(token.beginLine,21,dir);
 	    cuadruplosArr.add(cuadActual);
+
+	    return identificador.image;
 	}
 }
 

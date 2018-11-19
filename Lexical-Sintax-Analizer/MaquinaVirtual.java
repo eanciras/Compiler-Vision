@@ -127,10 +127,8 @@ public class MaquinaVirtual {
         int opDer,opIzq,opRes,operador,i=0;
         float valDer,valIzq,valRes;
 
-        Function currentFunction;
-        int currentPos = cuadruplosArr.size()-1;
-        int currentFunctionReturn = -1;
-        int paramTypePointer = 0;
+        Function currentFunction = new Function();
+        int currentPos = cuadruplosArr.size()-1, currentFunctionReturn = -1, paramTypePointer = 0, returnDir = 0;
         ArrayList<Integer> paramTypes = new ArrayList<>();
         ArrayList<Integer> paramList = new ArrayList<>();
 
@@ -138,7 +136,7 @@ public class MaquinaVirtual {
         Stack<Memoria> memoriasTemporales = new Stack<>();
         while(!end){
             cuadActual = cuadruplosArr.get(i);
-            operador=cuadActual.getiOperador();
+            operador = cuadActual.getiOperador();
             switch (operador) {
                 //+
                 case 0:
@@ -449,13 +447,36 @@ public class MaquinaVirtual {
                 case 12:
                     opIzq = cuadActual.getiIzquierda();
                     opRes = cuadActual.getiResultado();
-                    if(memType(opRes)==0){
-                        valIzq = accesoMemoriaEntero(opIzq);
-                        actualizarMemoriaEntero((int) valIzq,opRes);
-                    }
-                    else{
-                        valIzq = accesoMemoriaFlotante(opIzq);
-                        actualizarMemoriaFlotante(valIzq,opRes);
+                    if(opIzq != 23){
+                        if(memType(opRes)==0){
+                            if(memType(opIzq)==0) {
+                                valIzq = accesoMemoriaEntero(opIzq);
+                                actualizarMemoriaEntero((int) valIzq, opRes);
+                            }else {
+                                System.out.println("\nError found at line "+cuadActual.getiNumero()+".\n\tType mismatch expected INT found FLOAT");
+                                i = cuadruplosArr.size()-1;
+                            }
+                        }
+                        else{
+                            if(memType(opIzq)==1) {
+                                valIzq = accesoMemoriaFlotante(opIzq);
+                                actualizarMemoriaFlotante(valIzq,opRes);
+                            }else {
+                                System.out.println("\nError found at line " + cuadActual.getiNumero() + ".\n\tType mismatch expected FLOAT found INT");
+                                i = cuadruplosArr.size() - 1;
+                            }
+                        }
+                    }else {
+                        if(memType(returnDir)==0){
+                            valIzq = accesoMemoriaEntero(returnDir);
+                            System.out.println("Valor de retorno: "+valIzq+"variable cambiada"+opRes);
+                            actualizarMemoriaEntero((int) valIzq,opRes);
+                        }
+                        else{
+                            valIzq = accesoMemoriaFlotante(returnDir);
+                            System.out.println("Valor de retorno: "+valIzq+"variable cambiada"+opRes);
+                            actualizarMemoriaFlotante(valIzq,opRes);
+                        }
                     }
                     i++;
                     break;
@@ -468,7 +489,20 @@ public class MaquinaVirtual {
                         System.out.print(Float.toString(accesoMemoriaFlotante(opRes-20000)));
                     }else {
                         char txt[] = accesoMemoriaChar(opRes);
-                        System.out.print(new String(txt));
+                        for(int x = 0; x < txt.length; x++) {
+                            if(txt[x]!='\\') {
+                                System.out.print(txt[x]);
+                            }else {
+                                if(txt[x + 1] == 'n') {
+                                    System.out.print("\n");
+                                }else if(txt[x+1] == 't'){
+                                    System.out.print("\t");
+                                }else if(txt[x+1] == '\\'){
+                                    System.out.print("\\");
+                                }
+                                x++;
+                            }
+                        }
                     }
 
                     i++;
@@ -495,12 +529,13 @@ public class MaquinaVirtual {
                 case 15:
                     i = currentPos;
                     currentPos = cuadruplosArr.size()-1;
-                    paramTypePointer=0;
+                    paramTypePointer = 0;
                     if(!memoriasLocales.empty()) {
                         memLocal = memoriasLocales.pop();
                         memTemporal = memoriasTemporales.pop();
                     }
                     opRes = cuadActual.getiResultado();
+                    returnDir = opRes;
                     //TODO asign return value to variable
                     break;
                 // Param
@@ -591,6 +626,10 @@ public class MaquinaVirtual {
                 case 22:
                     System.out.println("\nEnd of execution");
                     end = true;
+                    break;
+                case 23:
+                    i = currentPos;
+                    currentPos = cuadruplosArr.size()-1;
                     break;
             }
         }

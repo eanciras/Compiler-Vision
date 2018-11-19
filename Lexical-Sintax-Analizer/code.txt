@@ -7,14 +7,18 @@ int ca = 7 +2;
 int funcion1(int a){
  int c = a;
  b = b*2;
- print(b);
+ print(b+"\n");
  if(3>9){
     a = 3 + 5 -7 * b * 1 +6 -8 *2 +1;
     return 8;
  }
  else{
-    return 9.5;
+    return 9;
  }
+}
+
+void aWeboPrro(){
+    print("Ya jalisco!");
 }
 
 int main(){
@@ -36,7 +40,11 @@ int main(){
         c=c+1;
     }
 
-    funcion1(a);
-    print("b = "+b+" deberia dar : 14");
+    c = funcion1(a);
+    print("b = "+b+" deberia dar : 12\n");
+    print("c = "+c+" debería dar : 9 -creo-\n");
+
+    aWeboPrro();
+
     return 0;
 }
