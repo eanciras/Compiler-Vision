@@ -1,6 +1,6 @@
 import javax.swing.*;
 
-public class Memoria {
+public class Memoria implements Cloneable{
     private int inicioMem, finMem, tamMem;
     private int enteroAct, flotanteActual, charActual;
     private int[] memoriaEntera;
@@ -99,5 +99,31 @@ public class Memoria {
 
     public void setFinMem(int finMem) {
         this.finMem = finMem;
+    }
+
+    public void showMem(){
+        for(int i = 0; i < enteroAct; i++){
+            System.out.println("DIR: "+inicioMem+i+" VAL: "+memoriaEntera[i]);
+        }
+        for(int i = 0; i < flotanteActual; i++){
+            System.out.println("DIR: "+inicioMem+i+tamMem+" VAL: "+memoriaFlotante[i]);
+        }
+    }
+
+    public Memoria(Memoria memoria){
+        this.inicioMem = memoria.inicioMem;
+        this.finMem = memoria.finMem;
+        this.tamMem = memoria.tamMem;
+        this.enteroAct = memoria.enteroAct;
+        this.flotanteActual = memoria.flotanteActual;
+        this.charActual = memoria.charActual;
+        this.memoriaEntera = new int[tamMem];
+        this.memoriaFlotante = new float[tamMem];
+        this.memoriaChar = new char[tamMem][1];
+        for(int i = 0; i < tamMem; i++){
+            this.memoriaEntera[i] = memoria.memoriaEntera[i];
+            this.memoriaFlotante[i] = memoria.memoriaFlotante[i];
+            this.memoriaChar[i] = memoria.memoriaChar[i];
+        }
     }
 }

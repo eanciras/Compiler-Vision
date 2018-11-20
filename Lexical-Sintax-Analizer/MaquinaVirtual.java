@@ -128,12 +128,13 @@ public class MaquinaVirtual {
         float valDer,valIzq,valRes;
 
         Function currentFunction = new Function();
-        int currentPos = cuadruplosArr.size()-1, currentFunctionReturn = -1, paramTypePointer = 0, returnDir = 0;
+        Stack<Integer> currentPosStack = new Stack<>();
+        currentPosStack.push(cuadruplosArr.size()-1);
+        int currentFunctionReturn = -1, paramTypePointer = 0, returnDir = 0;
         ArrayList<Integer> paramTypes = new ArrayList<>();
         ArrayList<Integer> paramList = new ArrayList<>();
-
-        Stack<Memoria> memoriasLocales = new Stack<>();
-        Stack<Memoria> memoriasTemporales = new Stack<>();
+        Vector<Memoria> memoriasLocales = new Vector<Memoria>();
+        Vector<Memoria> memoriasTemporales = new Vector<Memoria>();
         while(!end){
             cuadActual = cuadruplosArr.get(i);
             operador = cuadActual.getiOperador();
@@ -141,13 +142,20 @@ public class MaquinaVirtual {
                 //+
                 case 0:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -166,20 +174,29 @@ public class MaquinaVirtual {
                 //-
                 case 1:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
                     else{
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+
                     opRes = cuadActual.getiResultado();
+
                     if(memType(opRes)==0){
                         actualizarMemoriaEntero((int)(valIzq - valDer),opRes);
                     }
@@ -191,13 +208,20 @@ public class MaquinaVirtual {
                 // /
                 case 2:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer = returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -221,13 +245,20 @@ public class MaquinaVirtual {
                 //*
                 case 3:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -241,18 +272,27 @@ public class MaquinaVirtual {
                     else{
                         actualizarMemoriaFlotante(valIzq * valDer,opRes);
                     }
+
+                    System.out.println("--Multiplicacion--\n"+valDer+" * "+valIzq);
                     i++;
                     break;
                 // ==
                 case 4:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -271,13 +311,20 @@ public class MaquinaVirtual {
                 // <=
                 case 5:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -296,13 +343,20 @@ public class MaquinaVirtual {
                 // <
                 case 6:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer = returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -321,13 +375,20 @@ public class MaquinaVirtual {
                 // >=
                 case 7:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer = returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -346,13 +407,20 @@ public class MaquinaVirtual {
                 // >
                 case 8:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -371,13 +439,20 @@ public class MaquinaVirtual {
                 // !=
                 case 9:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer== 23){
+                        opDer= returnDir;
+                    }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -396,13 +471,22 @@ public class MaquinaVirtual {
                 // ||
                 case 10:
                     opIzq = cuadActual.getiIzquierda();
+                    if(opIzq == 23){
+                        opIzq = returnDir;
+                    }
+
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
                     else{
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+
                     opDer = cuadActual.getiDerecha();
+                    if(opDer == 23){
+                        opDer = returnDir;
+                    }
+
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
@@ -469,12 +553,10 @@ public class MaquinaVirtual {
                     }else {
                         if(memType(returnDir)==0){
                             valIzq = accesoMemoriaEntero(returnDir);
-                            System.out.println("Valor de retorno: "+valIzq+"variable cambiada"+opRes);
                             actualizarMemoriaEntero((int) valIzq,opRes);
                         }
                         else{
                             valIzq = accesoMemoriaFlotante(returnDir);
-                            System.out.println("Valor de retorno: "+valIzq+"variable cambiada"+opRes);
                             actualizarMemoriaFlotante(valIzq,opRes);
                         }
                     }
@@ -519,24 +601,42 @@ public class MaquinaVirtual {
                     paramTypes = currentFunction.getParams_Types();
                     paramList = currentFunction.getParams_list();
                     currentFunctionReturn = currentFunction.getReturn_type();
-
-                    memoriasLocales.push(memLocal);
-                    memoriasTemporales.push(memTemporal);
-
                     i++;
                     break;
                 // Return
                 case 15:
-                    i = currentPos;
-                    currentPos = cuadruplosArr.size()-1;
+                    i = currentPosStack.pop();
+                    int valori = 0;
+                    float valorf = 0;
                     paramTypePointer = 0;
-                    if(!memoriasLocales.empty()) {
-                        memLocal = memoriasLocales.pop();
-                        memTemporal = memoriasTemporales.pop();
-                    }
                     opRes = cuadActual.getiResultado();
-                    returnDir = opRes;
-                    //TODO asign return value to variable
+
+                    if(memType(opRes)==0){
+                        valori = accesoMemoriaEntero(opRes);
+                    }
+                    else{
+                        valorf = accesoMemoriaFlotante(opRes);
+                    }
+
+                    if(!memoriasLocales.isEmpty()){
+                        memLocal = new Memoria(memoriasLocales.get(memoriasLocales.size()-1));
+                        memTemporal = new Memoria(memoriasTemporales.get(memoriasLocales.size()-1));
+
+                        memoriasLocales.remove(memoriasLocales.get(memoriasLocales.size()-1));
+                        memoriasTemporales.remove(memoriasTemporales.get(memoriasTemporales.size()-1));
+
+                        /*for (int x = 0; x < memoriasLocales.size(); x++){
+                            System.out.println("=============MEMORIAS LOCALES=============");
+                            memoriasLocales.get(x).showMem();
+                        }*/
+                    }
+
+                    if(memType(opRes)==0){
+                        returnDir = memLocal.asignacionMemoriaEntera(valori);
+                    }
+                    else{
+                        returnDir = memLocal.asignacionMemoriaFlotante(valorf);
+                    }
                     break;
                 // Param
                 case 16:
@@ -548,28 +648,34 @@ public class MaquinaVirtual {
                             }else {
                                 if(paramTypes.get(paramTypePointer)==1) {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found INT");
+                                    i = cuadruplosArr.size()-2;
                                 }else {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found INT");
+                                    i = cuadruplosArr.size()-2;
                                 }
                             }
                         }else if(memType(opRes)==1) {
                             if (paramTypes.get(paramTypePointer) == 1) {
-                                actualizarMemoriaEntero(accesoMemoriaEntero(opRes), paramList.get(paramTypePointer));
+                                actualizarMemoriaFlotante(accesoMemoriaFlotante(opRes), paramList.get(paramTypePointer));
                             } else {
                                 if (paramTypes.get(paramTypePointer) == 0) {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found FLOAT");
+                                    i = cuadruplosArr.size()-2;
                                 } else {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found FLOAT");
+                                    i = cuadruplosArr.size()-2;
                                 }
                             }
                         }else {
                             if (paramTypes.get(paramTypePointer) == 2) {
-                                actualizarMemoriaEntero(accesoMemoriaEntero(opRes), paramList.get(paramTypePointer));
+                                actualizarMemoriaChar(accesoMemoriaChar(opRes), paramList.get(paramTypePointer));
                             } else {
                                 if (paramTypes.get(paramTypePointer) == 0) {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found CHAR");
+                                    i = cuadruplosArr.size()-2;
                                 } else {
                                     System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found CHAR");
+                                    i = cuadruplosArr.size()-2;
                                 }
                             }
                         }
@@ -619,7 +725,12 @@ public class MaquinaVirtual {
                 // GOSUB
                 case 21:
                     opRes = cuadActual.getiResultado();
-                    currentPos = i+1;
+                    currentPosStack.push(i+1);
+
+                    memoriasLocales.add(new Memoria(memLocal));
+                    memoriasTemporales.add(new Memoria(memTemporal));
+
+                    paramTypePointer = 0;
                     i = opRes;
                     break;
                 // EOF
@@ -627,9 +738,9 @@ public class MaquinaVirtual {
                     System.out.println("\nEnd of execution");
                     end = true;
                     break;
+                //END PROC
                 case 23:
-                    i = currentPos;
-                    currentPos = cuadruplosArr.size()-1;
+                    i = currentPosStack.pop();
                     break;
             }
         }

@@ -52,7 +52,6 @@ class compilador
     private static Objeto search(String id){
         int i = 0;
         //Realiza una busqueda en el contexto global y local
-        System.out.println("num: "+contextoNum+" tamaño: "+listaContextos.size());
         if(listaContextos.get(contextoNum).obtenerVar(id)!=null){
             return listaContextos.get(listaContextos.size()-1).obtenerVar(id);
         }else if(listaContextos.get(0).obtenerVar(id)!=null){
@@ -465,11 +464,9 @@ boolean end = false;
 	}
 	| <ID>{
 	    var = search(token.image);
-	    System.out.println(var);
 	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
 	}(<LBRACKET>{
-	    System.out.println(token.kind);
     	OperatorStack.push(token.kind);
     	} EXP() <RBRACKET>{
     	 OperatorStack.pop();
@@ -508,10 +505,7 @@ void CONDICION():
         cuadActual.CuadruploSetIzqRes(token.beginLine,18,OperandStack.pop(),-1);
         JumpStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
-	}BLOQUE(){
-
-        cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
-    } CONDICION_AUX()
+	}BLOQUE() CONDICION_AUX()
 }
 
 void CONDICION_AUX():
@@ -522,12 +516,12 @@ void CONDICION_AUX():
         cuadActual.CuadruploSetIzqRes(token.beginLine,17,-1,-1);
         PendingGOTOStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
-	}<ELSE> (CONDICION() | BLOQUE()))? {
+	}({cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);}<ELSE> (CONDICION() | BLOQUE()))? {
 	    int pendingPos = PendingGOTOStack.pop();
         Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
         cuadAux.setiResultado(cuadruplosArr.size());
         cuadruplosArr.set(pendingPos, cuadAux);
-	}
+	})?
 }
 
 void CICLO():
@@ -709,7 +703,6 @@ Objeto var = new Objeto();
 }
 {
 	(TIPO(){
-	    System.out.println("token.kind " +token.kind);
 	    var.setType(token.kind-6);
 	    listaFunciones.get(listaFunciones.size()-1).addParams_Types(token.kind-6);
 	} <ID> {
@@ -737,14 +730,12 @@ void RETORNO():
 	    if(token.kind-34 == 0){
 	        if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 0){
                 dir = memLocal.asignacionMemoriaEntera(Integer.parseInt(token.image));
-                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaEntera(dir));
 	        }else{
                 listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n unexpected return type.");
 	        }
 	    }else{
 	        if(listaFunciones.get(listaFunciones.size()-1).getReturn_type() == 1){
                 dir = memLocal.asignacionMemoriaFlotante(Float.parseFloat(token.image));
-                System.out.println("Creando el return regresa"+memLocal.accesoMemoriaFlotante(dir));
             }else{
                 listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n unexpected return type.");
             }
@@ -752,7 +743,7 @@ void RETORNO():
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
     } | EXP(){
-        dir = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
+        dir = OperandStack.pop();
         cuadActual.CuadruploSetRes(token.beginLine,15,dir);
         cuadruplosArr.add(cuadActual);
     }) <SEMICOLON>
@@ -776,7 +767,7 @@ int dir = 0;
         }
         cuadActual.CuadruploSetRes(token.beginLine,14,i-1);
         cuadruplosArr.add(cuadActual);
-	} <LPHARENTESIS> LLAMADA_AUX(1) <RPHARENTESIS> {
+	} <LPHARENTESIS> LLAMADA_AUX() <RPHARENTESIS> {
 	    cuadActual = new Cuadruplo();
 	    cuadActual.CuadruploSetRes(token.beginLine,21,dir);
 	    cuadruplosArr.add(cuadActual);
@@ -785,25 +776,20 @@ int dir = 0;
 	}
 }
 
-void LLAMADA_AUX(int cont):
+void LLAMADA_AUX():
 {}
 {
-	(LLAMADA_PARAM(cont) (<COMA> LLAMADA_AUX(cont + 1))?)?
+	(LLAMADA_PARAM() (<COMA> LLAMADA_AUX())?)?
 }
 
-void LLAMADA_PARAM(int cont):
+void LLAMADA_PARAM():
 {
     Cuadruplo cuadActual = new Cuadruplo();
 }
 {
-	LOOKAHEAD(3) <ID>{
-	    int opRes = search(token.image).getDireccion();
+	EXP(){
+        int opRes = OperandStack.pop();
         cuadActual.CuadruploSetRes(token.beginLine,16,opRes);
-        cuadruplosArr.add(cuadActual);
-    } |  EXP(){
-        int opRes = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
-        cuadActual.CuadruploSetRes(token.beginLine,16,opRes);
-        cuadActual.setiIzquierda(OperandStack.pop());
         cuadruplosArr.add(cuadActual);
     }
 }
