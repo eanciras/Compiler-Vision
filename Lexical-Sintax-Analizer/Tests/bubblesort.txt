@@ -1,9 +1,5 @@
 Program bubblesort;
 
-void aWeboPrro(){
-    print("Ya jalisco!");
-}
-
 int main(){
 
     int i = 10;
@@ -15,12 +11,11 @@ int main(){
         i=i-1;
     }
     i=0;
+    print("\nInitial...\n");
     while(i<11){
         print("t["+i+"] "+t[i]+"\n");
         i=i+1;
     }
-
-   print("Sorting \n");
 
    int swapped = 1,j=0,temp;
 
@@ -36,21 +31,18 @@ int main(){
                 t[i + 1] = temp;
                 swapped = 1;
             }
+
             i=i+1;
         }
     }
 
-    print("Sorted \n");
+    print("\nResultado... \n");
     i=0;
 
     while(i<11){
         print("t["+i+"] "+t[i]+"\n");
         i=i+1;
     }
-
-   //print("t "+t[9]+"\n");
-
-    aWeboPrro();
 
     return 0;
 }

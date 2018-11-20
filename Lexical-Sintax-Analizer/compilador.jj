@@ -223,27 +223,27 @@ Cuadruplo cuadActual = new Cuadruplo();
         OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
     }(<LBRACKET>{
-         	OperatorStack.push(token.kind);
-         	} EXP() <RBRACKET>{
-         	 OperatorStack.pop();
-         	 opIzq = OperandStack.pop();
-         	 tyRes = var.getType();
-         	 if(tyRes == 0){
-                  opRes = memTemporal.asignacionMemoriaEntera(0);
-               }
-               if(tyRes == 1){
-                  opRes = memTemporal.asignacionMemoriaFlotante(0);
-               }
-             cuadActual = new Cuadruplo();
-         	 cuadActual.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
-         	 cuadruplosArr.add(cuadActual);
-         	 cuadActual = new Cuadruplo();
-         	 opRes = opRes*-1;
-         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,var.getDireccion(),opRes);
-              cuadruplosArr.add(cuadActual);
-              OperandStack.push(opRes);
-              TypeStack.add(tyRes+34);
-         	})? <EQUAL>{
+        OperatorStack.push(token.kind);
+        } EXP() <RBRACKET>{
+        OperatorStack.pop();
+        opIzq = OperandStack.pop();
+        tyRes = var.getType();
+        if(tyRes == 0){
+          opRes = memTemporal.asignacionMemoriaEntera(0);
+        }
+        if(tyRes == 1){
+          opRes = memTemporal.asignacionMemoriaFlotante(0);
+        }
+        cuadActual = new Cuadruplo();
+        cuadActual.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
+        cuadruplosArr.add(cuadActual);
+        cuadActual = new Cuadruplo();
+        opRes = opRes*-1;
+        cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,var.getDireccion(),opRes);
+        cuadruplosArr.add(cuadActual);
+        OperandStack.push(opRes);
+        TypeStack.add(tyRes+34);
+        })? <EQUAL>{
         OperatorStack.push(token.kind);
     } MEGAEXPRESION(){
          if(!OperatorStack.isEmpty()){
@@ -521,15 +521,14 @@ void CONDICION_AUX():
         PendingGOTOStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
 	}<ELSE> (CONDICION() | BLOQUE()){
-                                    	    int pendingPos = PendingGOTOStack.pop();
-                                            Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
-                                            cuadAux.setiResultado(cuadruplosArr.size());
-                                            cuadruplosArr.set(pendingPos, cuadAux);
-                                    	})?{
-                                    	    if(!JumpStack.empty()){
-
-                                                   cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size());
-                                               }}
+        int pendingPos = PendingGOTOStack.pop();
+        Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
+        cuadAux.setiResultado(cuadruplosArr.size());
+        cuadruplosArr.set(pendingPos, cuadAux);
+    })?{
+        if(!JumpStack.empty()){
+           cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size());
+    }}
 }
 
 void CICLO():
@@ -566,6 +565,8 @@ Token identificador;            //El nombre de la variable
 Objeto var = new Objeto();   //La variable con tipo y valor
 int iCuadAntes;
 int iSize;
+int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
+Cuadruplo cuadActual = new Cuadruplo();
 }
 {
 	<VECTOR> identificador =  <ID> <LBRACKET>{
@@ -593,11 +594,12 @@ int iSize;
             var.setSize(iSize);
             decl(identificador,var);
            }
+
     } (<EQUAL>{
-              	    OperandStack.push(var.getDireccion());
-                      TypeStack.push(var.getType()+34);
-                      OperatorStack.push(token.kind);
-              	} <LKEY> VARS_AUX1_1() <RKEY>)?
+        OperandStack.push(var.getDireccion());
+        TypeStack.push(var.getType()+34);
+        OperatorStack.push(token.kind);
+    } <LKEY>VARS_AUX1_1()<RKEY>)?
 }
 
 void VARS_AUX1_1():
@@ -606,7 +608,7 @@ int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
 }
 {
-	MEGAEXPRESION(){
+	EXP(){
        if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
            if (OperatorStack.peek() == 29)
            {

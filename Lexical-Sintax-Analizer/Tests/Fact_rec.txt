@@ -8,20 +8,15 @@ int fact_rec(int valor){
         return 1;
     }
     else{
-        int aux = valor -1;
-        return (valor * (fact_rec(aux)));
+        return (valor * (fact_rec(valor-1)));
     }
  }
 
 
 int main(){
-     int resultado=0;
+    int res;
+    res = fact_rec(3);
+    print("Resultado = "+res+"\n");
 
-
-    resultado = fact_rec(resultado);
-    print("c = "+resultado+" deberia dar : 9 -creo-\n");
-
-     aWeboPrro();
-
-     return 0;
+    return 0;
  }

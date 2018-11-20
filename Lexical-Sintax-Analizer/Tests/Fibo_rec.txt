@@ -1,25 +1,18 @@
 Program Fibo_rec;
 
 int fiboRec(int valor){
-    if(valor<2){
+    if(valor<=2){
         return 1;
     }
     else{
-        return (fiboRec((valor - 2)) + fiboRec((valor - 1)));
+        return ((fiboRec(valor - 2)) + (fiboRec(valor - 1)));
     }
  }
-
-
-void aWeboPrro(){
-    print("Ya jalisco!");
-}
 
 int main(){
     int c = 4;
     c = fiboRec(c);
-    print("c = "+c+" debería dar : 9 -creo-\n");
-
-    aWeboPrro();
+    print("Resultado = "+c);
 
     return 0;
 }

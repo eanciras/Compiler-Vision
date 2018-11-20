@@ -2,6 +2,7 @@ import javax.swing.*;
 
 public class Memoria implements Cloneable{
     private int inicioMem, finMem, tamMem;
+
     private int enteroAct, flotanteActual, charActual;
     private int[] memoriaEntera;
     private float[] memoriaFlotante;
