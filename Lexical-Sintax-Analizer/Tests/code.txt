@@ -40,8 +40,9 @@ int main(){
         c=c+1;
     }
 
+    c = funcion1(a);
     print("b = "+b+" deberia dar : 12\n");
-    print("c = "+c+" debería dar : 9 -creo-\n");
+    print("c = "+c+" deberia dar : 9 -creo-\n");
 
     aWeboPrro();
 

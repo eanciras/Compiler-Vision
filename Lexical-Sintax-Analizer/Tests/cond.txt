@@ -1,0 +1,21 @@
+Program test;
+int b = 2;
+int a = 2;
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+int main(){
+
+    if(1){
+        a = a+1;
+    }
+
+
+    print("b = "+b+" deberia dar : 12\n");
+
+    aWeboPrro();
+
+    return 0;
+}

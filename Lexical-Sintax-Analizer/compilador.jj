@@ -216,7 +216,6 @@ Objeto var = new Objeto();
 Token identificador;
 int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
 Cuadruplo cuadActual = new Cuadruplo();
-Cuadruplo cuadVer = new Cuadruplo();
 }
 {
     identificador = <ID>{
@@ -235,17 +234,19 @@ Cuadruplo cuadVer = new Cuadruplo();
                if(tyRes == 1){
                   opRes = memTemporal.asignacionMemoriaFlotante(0);
                }
-         	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
-         	 cuadruplosArr.add(cuadVer);
+             cuadActual = new Cuadruplo();
+         	 cuadActual.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
+         	 cuadruplosArr.add(cuadActual);
          	 cuadActual = new Cuadruplo();
-         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,OperandStack.pop(),opRes);
-             cuadruplosArr.add(cuadActual);
-             OperandStack.push(opRes);
+         	 opRes = opRes*-1;
+         	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,var.getDireccion(),opRes);
+              cuadruplosArr.add(cuadActual);
+              OperandStack.push(opRes);
               TypeStack.add(tyRes+34);
          	})? <EQUAL>{
         OperatorStack.push(token.kind);
     } MEGAEXPRESION(){
-         if(!(OperatorStack.isEmpty())){
+         if(!OperatorStack.isEmpty()){
              if (OperatorStack.peek() == 29){
                  opDer = OperandStack.pop();
                  tyDer = TypeStack.pop();
@@ -467,6 +468,7 @@ boolean end = false;
 	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
 	}(<LBRACKET>{
+	    OperandStack.pop();
     	OperatorStack.push(token.kind);
     	} EXP() <RBRACKET>{
     	 OperatorStack.pop();
@@ -480,6 +482,7 @@ boolean end = false;
           }
     	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
     	 cuadruplosArr.add(cuadVer);
+    	 opRes = opRes*-1;
     	 cuadActual.CuadruploSetComplete(token.beginLine,0,opIzq,var.getDireccion(),opRes);
          cuadruplosArr.add(cuadActual);
          OperandStack.push(opRes);
@@ -512,16 +515,21 @@ void CONDICION_AUX():
 {}
 {
 	({
+	    cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);
         Cuadruplo cuadActual = new Cuadruplo();
         cuadActual.CuadruploSetIzqRes(token.beginLine,17,-1,-1);
         PendingGOTOStack.push(cuadruplosArr.size());
         cuadruplosArr.add(cuadActual);
-	}({cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size()+1);}<ELSE> (CONDICION() | BLOQUE()))? {
-	    int pendingPos = PendingGOTOStack.pop();
-        Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
-        cuadAux.setiResultado(cuadruplosArr.size());
-        cuadruplosArr.set(pendingPos, cuadAux);
-	})?
+	}<ELSE> (CONDICION() | BLOQUE()){
+                                    	    int pendingPos = PendingGOTOStack.pop();
+                                            Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
+                                            cuadAux.setiResultado(cuadruplosArr.size());
+                                            cuadruplosArr.set(pendingPos, cuadAux);
+                                    	})?{
+                                    	    if(!JumpStack.empty()){
+
+                                                   cuadruplosArr.get(JumpStack.pop()).setiResultado(cuadruplosArr.size());
+                                               }}
 }
 
 void CICLO():
@@ -563,7 +571,7 @@ int iSize;
 	<VECTOR> identificador =  <ID> <LBRACKET>{
 	var.setbDim(true);
 	iCuadAntes = cuadruplosArr.size();
-	} MEGAEXPRESION(){
+	} EXP(){
 	if(iCuadAntes != cuadruplosArr.size()){
 	    iSize= memConstante.accesoMemoriaEntera((cuadruplosArr.get(cuadruplosArr.size()).getiResultado()));
 	}
@@ -838,7 +846,7 @@ int cuadSize = cuadruplosArr.size(), opRes;
             Objeto var = search(token.image);
             cuadActual.CuadruploSetRes(token.beginLine, 13, var.getDireccion());
         }else{
-            opRes = cuadruplosArr.get(cuadruplosArr.size()).getiResultado();
+            opRes = cuadruplosArr.get(cuadruplosArr.size()-1).getiResultado();
             cuadActual.CuadruploSetRes(token.beginLine, 13, opRes);
         }
         cuadruplosArr.add(cuadActual);

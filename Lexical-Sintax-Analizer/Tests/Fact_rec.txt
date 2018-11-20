@@ -9,7 +9,6 @@ int fact_rec(int valor){
     }
     else{
         int aux = valor -1;
-        print("aux = "+aux+" \n");
         return (valor * (fact_rec(aux)));
     }
  }
@@ -20,7 +19,7 @@ int main(){
 
 
     resultado = fact_rec(resultado);
-    print("c = "+resultado+" debería dar : 9 -creo-\n");
+    print("c = "+resultado+" deberia dar : 9 -creo-\n");
 
      aWeboPrro();
 

@@ -17,7 +17,7 @@ int main(){
     }
 
 
-    print("c = "+actual+" debería dar : 9 -creo-\n");
+    print("c = "+actual+" deberia dar : 9 -creo-\n");
 
     aWeboPrro();
 

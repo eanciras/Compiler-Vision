@@ -12,7 +12,7 @@ int main(){
     }
 
 
-    print("c = "+resultado+" debería dar : 120 \n");
+    print("c = "+resultado+" deberia dar : 120 \n");
 
     aWeboPrro();
 
