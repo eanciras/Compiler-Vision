@@ -17,8 +17,11 @@ class compilador implements compiladorConstants {
 
     //En este arreglo se guarda cada cuadruplo a medida que se compila el programa, al final se ejecutaran todos los cuadruplos en orden
     public static ArrayList<Cuadruplo> cuadruplosArr = new ArrayList<Cuadruplo>();
+
+    //cubo semantica para validar tipos
     public static CuboSemantico cuboSemantico = new CuboSemantico();
 
+    //pilas para la creacion de cuadruplos
     public static Stack<Integer> OperandStack = new Stack<Integer>();
     public static Stack<Integer> OperatorStack = new Stack<Integer>();
     public static Stack<Integer> TypeStack = new Stack<Integer>();
@@ -26,11 +29,13 @@ class compilador implements compiladorConstants {
     public static Stack<Integer> ReturnStack = new Stack<Integer>();
     public static Stack<Integer> PendingGOTOStack = new Stack<Integer>();
 
+    //memorias virtuales donde se asignaran las variables
     private static Memoria memGlobal = new Memoria(10000,40000);
     private static Memoria memLocal = new Memoria(40000,70000);
     private static Memoria memTemporal = new Memoria(70000,100000);
     private static Memoria memConstante = new Memoria(100000,130000);
 
+    //maquina virtual que ejecutara los cudaroplos una vez terimada la compilacion
     public static MaquinaVirtual vm;
 
     private static int accesoMemoriaEntero(int valor){
@@ -106,21 +111,7 @@ class compilador implements compiladorConstants {
             }
         }
 
-    private static void asign(Token identificador, Objeto var){
-        boolean error = true;
-
-        int i = 0;
-        //Realiza una busqueda del contexto global al local
-        for(i = 0; i < listaContextos.size() && error; i++){
-            if(listaContextos.get(i).obtenerVar(identificador.image)!=null){
-                listaContextos.get(i).actualizarVar(identificador.image, var);
-                error = false;
-            }
-        }
-
-        if(error)listaErrores.add("Error found At line "+identificador.beginLine+", column "+identificador.beginColumn+"\u005cn   variable '"+identificador.image+"' has not been declared.");
-    }
-
+    //funcion que busca el id recibido y valida que no este en la tabla de variables
     private static Objeto search(String id){
         int i = 0;
         //Realiza una busqueda en el contexto global y local
@@ -136,6 +127,7 @@ class compilador implements compiladorConstants {
         return new Objeto();
     }
 
+    //metodo para asignar un objecto var recibido y asignarlo al contexto actual y tabla de variables
     public static void decl(Token identificador, Objeto var){
         var.setType(tipo);
         boolean noVar = false;
@@ -162,6 +154,29 @@ class compilador implements compiladorConstants {
         {
                 try
                 {
+                /*
+		File file = new File(compilador.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+                    File file2 = new File(file.getParentFile(),"code.txt");
+
+        		    PrintWriter writer = new PrintWriter(file2,"UTF-8");
+
+        		    String x = "";
+                    Scanner scanner = new Scanner(System.in);
+                    String input = scanner.nextLine();
+
+                    while (!input.equals("EOF") && !input.equalsIgnoreCase("use file")) {
+                        x+=input+"\n";
+                        writer.println(input);
+                        input = scanner.nextLine();
+                    }
+
+                    writer.close();
+
+                    System.out.println(x);
+
+                    InputStream inputstream = new FileInputStream(file2);
+		*/
+
                 compilador analizador = new compilador( System.in ) ;
                         analizador.Programa();
                         for(int i = 0; i < listaErrores.size(); i++){
@@ -396,6 +411,10 @@ Cuadruplo cuadActual = new Cuadruplo();
                        opRes = memTemporal.asignacionMemoriaFlotante(0);
                        OperandStack.push(opRes);
                     }
+                    if(tyRes == 2){
+                     opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+                     OperandStack.push(opRes);
+                    }
                     cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                     cuadruplosArr.add(cuadActual);
                     TypeStack.add(tyRes+34);
@@ -444,6 +463,10 @@ Cuadruplo cuadActual = new Cuadruplo();
                          opRes = memTemporal.asignacionMemoriaFlotante(0);
                          OperandStack.push(opRes);
                       }
+                      if(tyRes == 2){
+                         opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+                         OperandStack.push(opRes);
+                        }
                       cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                       cuadruplosArr.add(cuadActual);
                       TypeStack.add(tyRes+34);
@@ -859,8 +882,6 @@ int iSize;
             var.setSize(iSize);
             decl(identificador,var);
         }
-           //System.out.println(var);
-
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case EQUAL:
       jj_consume_token(EQUAL);
@@ -963,7 +984,6 @@ Cuadruplo cuadActual = new Cuadruplo();
             var.setDireccion(memGlobal.asignacionMemoriaChar(new char['0']));
             decl(identificador,var);
         }
-        System.out.println(var);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case EQUAL:
       jj_consume_token(EQUAL);
@@ -984,7 +1004,6 @@ Cuadruplo cuadActual = new Cuadruplo();
                 opIzq = OperandStack.pop();
                 tyIzq = TypeStack.pop();
                  opOPerator = OperatorStack.pop();
-                 System.out.println("hi ");
                  tyRes = cuboSemantico.getValidacion(opOPerator,tyDer,tyIzq);
 
                  if(tyRes != -1){
@@ -1377,86 +1396,14 @@ int cuadSize = cuadruplosArr.size(), opRes;
     finally { jj_save(9, xla); }
   }
 
-  static private boolean jj_3R_45() {
-    if (jj_scan_token(RETURN)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_5() {
-    if (jj_scan_token(AND)) return true;
-    return false;
-  }
-
-  static private boolean jj_3_2() {
-    if (jj_scan_token(LKEY)) return true;
-    if (jj_3R_5()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_46() {
-    if (jj_scan_token(SUBSTRACTION)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_32() {
-    if (jj_3R_44()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_37() {
+  static private boolean jj_3_6() {
     Token xsp;
     xsp = jj_scanpos;
-    if (jj_3R_46()) jj_scanpos = xsp;
-    if (jj_3R_15()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_43() {
-    if (jj_scan_token(PRINT)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_40() {
-    if (jj_scan_token(EQUAL)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_42() {
-    if (jj_scan_token(IF)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_21() {
-    if (jj_3R_35()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_8() {
-    if (jj_scan_token(SUBSTRACTION)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_36() {
-    if (jj_scan_token(LPHARENTESIS)) return true;
-    if (jj_3R_21()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_22() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_36()) {
+    if (jj_3R_7()) {
     jj_scanpos = xsp;
-    if (jj_3R_37()) return true;
+    if (jj_3R_8()) return true;
     }
-    return false;
-  }
-
-  static private boolean jj_3R_9() {
-    if (jj_3R_12()) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3_6()) jj_scanpos = xsp;
+    if (jj_3R_9()) return true;
     return false;
   }
 
@@ -1473,24 +1420,8 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_7() {
-    if (jj_scan_token(ADDITION)) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_31() {
-    if (jj_3R_43()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_6() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_7()) {
-    jj_scanpos = xsp;
-    if (jj_3R_8()) return true;
-    }
-    if (jj_3R_9()) return true;
+  static private boolean jj_3R_21() {
+    if (jj_3R_35()) return true;
     return false;
   }
 
@@ -1499,8 +1430,8 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_47() {
-    if (jj_3R_9()) return true;
+  static private boolean jj_3R_31() {
+    if (jj_3R_43()) return true;
     return false;
   }
 
@@ -1521,6 +1452,11 @@ int cuadSize = cuadruplosArr.size(), opRes;
     if (jj_3R_40()) jj_scanpos = xsp;
     xsp = jj_scanpos;
     if (jj_3R_41()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_47() {
+    if (jj_3R_9()) return true;
     return false;
   }
 
@@ -1545,8 +1481,8 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_30() {
-    if (jj_3R_42()) return true;
+  static private boolean jj_3R_18() {
+    if (jj_3R_29()) return true;
     return false;
   }
 
@@ -1562,8 +1498,8 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_18() {
-    if (jj_3R_29()) return true;
+  static private boolean jj_3R_30() {
+    if (jj_3R_42()) return true;
     return false;
   }
 
@@ -1610,24 +1546,6 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_34() {
-    if (jj_3R_45()) return true;
-    return false;
-  }
-
-  static private boolean jj_3_4() {
-    if (jj_3R_6()) return true;
-    return false;
-  }
-
-  static private boolean jj_3R_13() {
-    if (jj_scan_token(ID)) return true;
-    if (jj_scan_token(LPHARENTESIS)) return true;
-    if (jj_3R_23()) return true;
-    if (jj_scan_token(RPHARENTESIS)) return true;
-    return false;
-  }
-
   static private boolean jj_3R_12() {
     if (jj_3R_22()) return true;
     Token xsp;
@@ -1636,8 +1554,11 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_35() {
-    if (jj_3R_9()) return true;
+  static private boolean jj_3R_13() {
+    if (jj_scan_token(ID)) return true;
+    if (jj_scan_token(LPHARENTESIS)) return true;
+    if (jj_3R_23()) return true;
+    if (jj_scan_token(RPHARENTESIS)) return true;
     return false;
   }
 
@@ -1665,14 +1586,34 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_20() {
-    if (jj_scan_token(LBRACKET)) return true;
+  static private boolean jj_3R_34() {
+    if (jj_3R_45()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_4() {
+    if (jj_3R_6()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_35() {
     if (jj_3R_9()) return true;
     return false;
   }
 
   static private boolean jj_3R_44() {
     if (jj_scan_token(WHILE)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_20() {
+    if (jj_scan_token(LBRACKET)) return true;
+    if (jj_3R_9()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_41() {
+    if (jj_scan_token(COMA)) return true;
     return false;
   }
 
@@ -1686,11 +1627,6 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
-  static private boolean jj_3R_41() {
-    if (jj_scan_token(COMA)) return true;
-    return false;
-  }
-
   static private boolean jj_3_10() {
     if (jj_3R_15()) return true;
     return false;
@@ -1698,6 +1634,11 @@ int cuadSize = cuadruplosArr.size(), opRes;
 
   static private boolean jj_3_1() {
     if (jj_3R_4()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_14() {
+    if (jj_3R_9()) return true;
     return false;
   }
 
@@ -1731,18 +1672,96 @@ int cuadSize = cuadruplosArr.size(), opRes;
     return false;
   }
 
+  static private boolean jj_3R_45() {
+    if (jj_scan_token(RETURN)) return true;
+    return false;
+  }
+
   static private boolean jj_3R_5() {
     if (jj_3R_19()) return true;
     return false;
   }
 
-  static private boolean jj_3R_14() {
-    if (jj_3R_9()) return true;
+  static private boolean jj_3R_33() {
+    if (jj_3R_13()) return true;
     return false;
   }
 
-  static private boolean jj_3R_33() {
-    if (jj_3R_13()) return true;
+  static private boolean jj_3R_46() {
+    if (jj_scan_token(SUBSTRACTION)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_37() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_46()) jj_scanpos = xsp;
+    if (jj_3R_15()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_2() {
+    if (jj_scan_token(LKEY)) return true;
+    if (jj_3R_5()) return true;
+    return false;
+  }
+
+  static private boolean jj_3_5() {
+    if (jj_scan_token(AND)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_42() {
+    if (jj_scan_token(IF)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_40() {
+    if (jj_scan_token(EQUAL)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_43() {
+    if (jj_scan_token(PRINT)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_32() {
+    if (jj_3R_44()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_8() {
+    if (jj_scan_token(SUBSTRACTION)) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_36() {
+    if (jj_scan_token(LPHARENTESIS)) return true;
+    if (jj_3R_21()) return true;
+    return false;
+  }
+
+  static private boolean jj_3R_22() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_36()) {
+    jj_scanpos = xsp;
+    if (jj_3R_37()) return true;
+    }
+    return false;
+  }
+
+  static private boolean jj_3R_9() {
+    if (jj_3R_12()) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3_6()) jj_scanpos = xsp;
+    return false;
+  }
+
+  static private boolean jj_3R_7() {
+    if (jj_scan_token(ADDITION)) return true;
     return false;
   }
 

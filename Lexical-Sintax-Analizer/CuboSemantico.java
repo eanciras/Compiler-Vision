@@ -3,7 +3,7 @@ public class CuboSemantico {
 
     public CuboSemantico(){
         //cubo[]
-        // "+" = 0, "-" = 1, "*" = 2, "/" = 3, "==" = 4, "<=" = 5, "<" = 6,
+        // "+" = 0, "-" = 1, "/" = 2, "*" = 3, "==" = 4, "<=" = 5, "<" = 6,
         // ">=" = 7, ">" = 8, "!=" = 9, "||" = 10, "&&" == 11 "=" = 12
         //cubo[][]
         //int= 0,float=1,char=2, ERR = -1
@@ -82,20 +82,19 @@ public class CuboSemantico {
         if(ladoIzq<34){ladoIzq+=28;} //Las palabras reservadas int, float y char están en el rango de 6 a 8, se les suma 24 para su validación semantica sin modificar el cubo
         if(ladoDer<34){ladoDer+=28;} //
 
-        operador -= 17; //resta 18 para que 0 sea suma y de ahí en delante
-        ladoIzq -= 34;  //resta 36 para que 0 sea int y de ahí en delante
-        ladoDer -= 34;  //resta 36 para que 0 sea int y de ahí en delante
+        operador -= 17; //resta 17 para que 0 sea suma y de ahí en delante
+        ladoIzq -= 34;  //resta 34 para que 0 sea int y de ahí en delante
+        ladoDer -= 34;  //resta 34 para que 0 sea int y de ahí en delante
 
-        if(operador>4&&operador<12){operador = 4;}
+        //si el operador es mayor a 4 y menor a 12
+        if(operador>4&&operador<12){
+            //modificamos que sea 4 y accede la parte logica del cubo
+            operador = 4;
+        }
 
         if(ladoIzq < 0 || ladoIzq > 2 || ladoDer < 0 || ladoDer > 2) {
             return -1;
         }
-
-        System.out.println("operador " + operador);
-        System.out.println("ladoIzq " + ladoIzq);
-        System.out.println("ladoDer " + ladoDer);
-        System.out.println("cubo " + cubo[operador][ladoIzq][ladoDer]);
 
 
         return cubo[operador][ladoIzq][ladoDer];

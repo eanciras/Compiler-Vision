@@ -18,6 +18,8 @@ public class MaquinaVirtual {
         this.listaFunciones = listaFunciones;
     }
 
+    //funcion que en base a la direccion de memoria recibida como el parametro valor accede
+    //a la memoria a la que pertence dicha direccion y recupera el valor entero
     private int accesoMemoriaEntero(int valor){
         if(valor>=memGlobal.getInicioMem() && valor<memGlobal.getFinMem()){
             return memGlobal.accesoMemoriaEntera(valor);
@@ -33,7 +35,8 @@ public class MaquinaVirtual {
         }
         return -1;
     }
-
+    //funcion que en base a la direccion de memoria recibida como el parametro valor accede
+    //a la memoria a la que pertence dicha direccion y recupera el valor flotante
     private float accesoMemoriaFlotante(int valor){
         if(valor>=memGlobal.getInicioMem() && valor<memGlobal.getFinMem()){
             return memGlobal.accesoMemoriaFlotante(valor);
@@ -50,6 +53,8 @@ public class MaquinaVirtual {
         return -1;
     }
 
+    //funcion que en base a la direccion de memoria recibida como el parametro valor accede
+    //a la memoria a la que pertence dicha direccion y recupera el arreglo de caracteres
     private char[] accesoMemoriaChar(int valor){
         if(valor>=memGlobal.getInicioMem() && valor<memGlobal.getFinMem()){
             return memGlobal.accesoMemoriaChar(valor);
@@ -63,9 +68,12 @@ public class MaquinaVirtual {
         if(valor>=memConstante.getInicioMem() && valor<memConstante.getFinMem()){
             return memConstante.accesoMemoriaChar(valor);
         }
+        //se regresa un arreglo de caracteres con el caracter e si no se encontro
         return new char[]{'e'};
     }
 
+    //funcion que en base a la direccion de memoria recibida como el parametro direccion
+    //actualizaria el valor entero que se encuentra de esa direccion en memoria con el parametro valor
     private void actualizarMemoriaEntero(int valor, int direccion){
         if(direccion>=memGlobal.getInicioMem() && direccion<memGlobal.getFinMem()){
             memGlobal.actualizacionMemoriaEntera(valor,direccion);
@@ -81,6 +89,8 @@ public class MaquinaVirtual {
         }
     }
 
+    //funcion que en base a la direccion de memoria recibida como el parametro direccion
+    //actualizaria el valor flotante que se encuentra de esa direccion en memoria con el parametro valor
     private void actualizarMemoriaFlotante(float valor, int direccion){
         if(direccion>=memGlobal.getInicioMem() && direccion<memGlobal.getFinMem()){
             memGlobal.actualizacionMemoriaFlotante(valor,direccion);
@@ -95,7 +105,8 @@ public class MaquinaVirtual {
             memConstante.actualizacionMemoriaFlotante(valor,direccion);
         }
     }
-
+    //funcion que en base a la direccion de memoria recibida como el parametro direccion
+    //actualizaria el arreglo de caracteres que se encuentra de esa direccion en memoria con el parametro valor
     private void actualizarMemoriaChar(char[] valor, int direccion){
         if(direccion>=memGlobal.getInicioMem() && direccion<memGlobal.getFinMem()){
             memGlobal.actualiacionMemoriaChar(valor,direccion);
@@ -110,7 +121,8 @@ public class MaquinaVirtual {
             memConstante.actualiacionMemoriaChar(valor,direccion);
         }
     }
-
+    //funcion que retorna el tipo de valor que contiene la direccion recibida como paramentro value
+    //regresa 0 para enteros, 1 para flotante y 2 para caracteres
     private int memType(int value) {
         float result = (float)Math.floor((float)value / 10000.0);
         if(result % 3 == 0){
@@ -155,6 +167,7 @@ public class MaquinaVirtual {
                             opIzq = (int)accesoMemoriaFlotante(opIzq);
                         }
                     }
+                    //si el opIzq es igual a == 23 se saca de la pila de retornos la direccion correspondiente
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -200,8 +213,6 @@ public class MaquinaVirtual {
                         if (memType(opRes)==2){
                             int j = (int) (valIzq + opDer);
                             actualizarMemoriaChar(("" + j).toCharArray(),opRes);
-                            System.out.println("+ "+j);
-                            System.out.println("hi "+("" + j).toCharArray());
                         }
                     }
                     else {
@@ -442,19 +453,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es == a el valor derecho en valDer
                     if(valIzq == valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -493,19 +527,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es <= a el valor derecho en valDer
                     if(valIzq <= valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -544,23 +601,48 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es < a el valor derecho en valDer
                     if(valIzq < valDer){
+                        //guardamos 1 en direccion de memoria simulando el true
                         actualizarMemoriaEntero(1,opRes);
                     }
                     else{
+                        //guardamos 1 en direccion de memoria simulando el false
                         actualizarMemoriaEntero(0,opRes);
                     }
                     i++;
@@ -595,19 +677,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es >= a el valor derecho en valDer
                     if(valIzq >= valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -643,23 +748,42 @@ public class MaquinaVirtual {
                                 opIzq = (int)accesoMemoriaFlotante(opIzq);
                             }
                         }
-                    if(opIzq == 23){
-                        opIzq = pilaRetorno.pop();
-                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
-                    //System.out.println("> " + (valIzq > valDer));
+                    //si el valor izquierdo en valIzq es > a el valor derecho en valDer
                     if(valIzq > valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -698,19 +822,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es != a el valor derecho en valDer
                     if(valIzq != valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -749,19 +896,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es igual a 1 o el valor derecho en valDer es igual a 1
                     if(valIzq == 1 || valDer == 1){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -800,19 +970,42 @@ public class MaquinaVirtual {
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opIzq)==0){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opIzq)==1){
+                        //si lo es guardamos el valor en valIzq
                         valIzq = accesoMemoriaFlotante(opIzq);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valIzqC = accesoMemoriaChar(opIzq);
+                        //convertimos el caracter 0 a entero
+                        valIzq = (int)(valIzqC[0]);
+                    }
+                    //checamos si el operador izquierdo es entero
                     if(memType(opDer)==0){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    //checamos si el operador izquierdo es flotante
+                    if(memType(opDer)==1){
+                        //si lo es guardamos el valor en valDer
                         valDer = accesoMemoriaFlotante(opDer);
                     }
+                    //checamos si el operador izquierdo es un caracter
+                    if(memType(opIzq)==2){
+                        //si lo es guardamos el arreglo de caracteres en ValIzqC
+                        valDerC = accesoMemoriaChar(opDer);
+                        //convertimos el caracter 0 a entero
+                        valDer = (int)(valDerC[0]);
+                    }
                     opRes = cuadActual.getiResultado();
+                    //si el valor izquierdo en valIzq es igual a 1 y el valor derecho en valDer es igual a 1
                     if(valIzq == 1 && valDer == 1){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -853,9 +1046,7 @@ public class MaquinaVirtual {
                             if(memType(opRes)==2) {
                                     char[] aux = accesoMemoriaChar(opRes);
                                     String aux2 = new String(aux);
-                                    System.out.println("aux2 " + aux2);
                                     aux2 = aux2.replace('\'',' ').trim();
-                                    System.out.println("aux2 trimmed" + aux2);
                                     opRes = Integer.parseInt(aux2);
                                 }
                         }
@@ -884,7 +1075,6 @@ public class MaquinaVirtual {
                         }
                     }else {
                         returnDir = pilaRetorno.pop();
-                        System.out.println("pilaRetorno " + returnDir);
                         if(memType(returnDir)==0){
                             valIzq = accesoMemoriaEntero(returnDir);
                             actualizarMemoriaEntero((int) valIzq,opRes);
@@ -911,9 +1101,7 @@ public class MaquinaVirtual {
                         if(memType(opRes)==2){
                             char[] aux = accesoMemoriaChar(opRes);
                             String aux2 = new String(aux);
-                            System.out.println("aux2 " + aux2);
                             aux2 = aux2.replace('\'',' ').trim();
-                            System.out.println("aux2 trimmed" + aux2);
                             opRes = Integer.parseInt(aux2);
                         }
                     }
@@ -1001,7 +1189,6 @@ public class MaquinaVirtual {
                     opRes = cuadActual.getiResultado();
                     if(opRes == 23){
                         opRes = pilaRetorno.pop();
-                        System.out.println("holly " + opRes);
                     }
                     if(paramTypePointer < paramTypes.size()){
                         if(memType(opRes)==0) {

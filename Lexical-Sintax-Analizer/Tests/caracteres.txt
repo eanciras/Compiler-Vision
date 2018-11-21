@@ -13,7 +13,7 @@ int main(){
 
     print("imprimiendo caracter "+vato+"\n");
     print("imprimiendo caracter "+waifu+"\n");
-    print("imprimiendo caracter "+vec[0]+"\n");
+    print("imprimiendo caracter "+(vato<waifu)+"\n");
 
 
     return 0;

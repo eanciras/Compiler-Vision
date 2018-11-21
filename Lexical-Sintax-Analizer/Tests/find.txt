@@ -12,10 +12,6 @@ int iter(int valor,int size){
     return 0;
 }
 
-void aWeboPrro(){
-    print("Ya jalisco!");
-}
-
 int main(){
 
     int i = 10;
@@ -45,7 +41,6 @@ int main(){
 
    //print("t "+t[9]+"\n");
 
-    aWeboPrro();
 
     return 0;
 }

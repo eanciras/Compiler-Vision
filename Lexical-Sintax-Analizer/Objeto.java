@@ -1,15 +1,24 @@
 import java.lang.reflect.Type;
 import java.util.Set;
 
+//clase con los atributos de las variables que se utilizan en el compilador
 public class Objeto<T> {
+    //valor que tiene la variable asignado
     T value;
+    //valor que representa el tipo de la variable
     int type = -1;
+    //auxiliar para detectar si existe en algun contexto o tabla de variables
     String status = "ok";
+    //id de la variable
     String id = "m";
+    //direccion de memoria en la que se encentra el valor
     int direccion = 0;
+    //booleana que inidica si la variable es dimensionada
     boolean bDim = false;
+    //tamaño de las varaibles con dimensiones
     int size=0;
 
+    //constructores
     public Objeto(){
 
     }
@@ -35,11 +44,13 @@ public class Objeto<T> {
         this.id  = id;
         this.direccion = direccion;
     }
-
+    //funcion paraa imprimir las variables y saber el tipo su id el valor que tiene la direccion y el tamño de su dimension
+    //debuging purposes
     public String toString() {
         return "[type: "+type+ " id: " + this.id  + " , Value: " + this.value + " Dir: " + this.direccion  +" Size: " + this.size +  "]";
     }
 
+    //metodos de acceso y asignacion de los atributoss
     public int getType() {
         return type;
     }

@@ -1,11 +1,19 @@
+//clase que representa y guarda los atributos de los cudruplos
+//cuadruplo [inumero de linea, operador, operando izquierdo, operando derecho, operando resultante
 public class Cuadruplo {
+    //inumero := numero de linea en donde se creo el cudruplo
+    //iOperador:= operador del cudruplo
+    //iDerecha:= operando derecha
+    //iZquierda:= operando izquierdo
+    //iResultado:= operando resultante
+
     private int iNumero, iOperador, iDerecha, iIzquierda, iResultado;
     /*
     "+" = 0, "-" = 1, "/" = 2, "*" = 3, "==" = 4, "<=" = 5, "<" = 6,
     ">=" = 7, ">" = 8, "!=" = 9, "||" = 10, "&&" = 11 "=" = 12
     "print" = 13, "era" = 14, "retorno" = 15 "param" = 16
     */
-
+    //contructor base
     public void Cuadruplo() {
         this.iNumero = -1;
         this.iOperador = -1;
@@ -13,7 +21,8 @@ public class Cuadruplo {
         this.iIzquierda = -1;
         this.iResultado = -1;
     }
-
+    //metodo para asignar todos loa atributos del cuadruplo
+    // +,-,*- .... && ,|| ver
     public void CuadruploSetComplete(int iNumero, int iOperador, int iIzquierda, int iDerecha, int iResultado) {
         this.iNumero = iNumero;
         this.iOperador = iOperador;
@@ -22,6 +31,8 @@ public class Cuadruplo {
         this.iResultado = iResultado;
     }
 
+    //metodo para asignar los atributos inumero ioperador iZquierda e iresultado al cudruplo
+    //cudruplos que utilizan esto =, gotof,param
     public void CuadruploSetIzqRes(int iNumero, int iOperador, int iIzquierda, int iResultado) {
         this.iNumero = iNumero;
         this.iOperador = iOperador;
@@ -30,16 +41,8 @@ public class Cuadruplo {
         this.iResultado = iResultado;
     }
 
-
-    public void CuadruploSetIzq(int iNumero, int iOperador, int iIzquierda) {
-        this.iNumero = iNumero;
-        this.iOperador = iOperador;
-        this.iDerecha = iDerecha;
-        this.iIzquierda = -1;
-        this.iResultado = -1;
-    }
-
-
+    //metodo para asignar los atributos inumero ioperador e iresultado al cudruplo
+    //cudruplos que utilizan esto goto, context, print, era, gosub
     public void CuadruploSetRes(int iNumero, int iOperador, int iResultado) {
         this.iNumero = iNumero;
         this.iOperador = iOperador;
@@ -47,6 +50,8 @@ public class Cuadruplo {
         this.iIzquierda = -1;
         this.iResultado = iResultado;
     }
+
+    //metodos de acceso y retorno de los atributos
 
     public int getiNumero() {
         return iNumero;
@@ -88,6 +93,7 @@ public class Cuadruplo {
         this.iResultado = iResultado;
     }
 
+    //metodo para imprimir los cuadruplos
     public String toString() {
         String op = "";
         switch (iOperador) {
