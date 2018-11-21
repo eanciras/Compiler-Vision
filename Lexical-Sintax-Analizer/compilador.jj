@@ -34,6 +34,79 @@ class compilador
 
     public static MaquinaVirtual vm;
 
+    private static int accesoMemoriaEntero(int valor){
+            if(valor>=memGlobal.getInicioMem() && valor<memGlobal.getFinMem()){
+                return memGlobal.accesoMemoriaEntera(valor);
+            }
+            if(valor>=memLocal.getInicioMem() && valor<memLocal.getFinMem()){
+                return memLocal.accesoMemoriaEntera(valor);
+            }
+            if(valor>=memTemporal.getInicioMem() && valor<memTemporal.getFinMem()){
+                return memTemporal.accesoMemoriaEntera(valor);
+            }
+            if(valor>=memConstante.getInicioMem() && valor<memConstante.getFinMem()){
+                return memConstante.accesoMemoriaEntera(valor);
+            }
+            return -1;
+        }
+
+        private static float accesoMemoriaFlotante(int valor){
+            if(valor>=memGlobal.getInicioMem() && valor<memGlobal.getFinMem()){
+                return memGlobal.accesoMemoriaFlotante(valor);
+            }
+            if(valor>=memLocal.getInicioMem() && valor<memLocal.getFinMem()){
+                return memLocal.accesoMemoriaFlotante(valor);
+            }
+            if(valor>=memTemporal.getInicioMem() && valor<memTemporal.getFinMem()){
+                return memTemporal.accesoMemoriaFlotante(valor);
+            }
+            if(valor>=memConstante.getInicioMem() && valor<memConstante.getFinMem()){
+                return memConstante.accesoMemoriaFlotante(valor);
+            }
+            return -1;
+        }
+
+     private static void actualizarMemoriaEntero(int valor, int direccion){
+            if(direccion>=memGlobal.getInicioMem() && direccion<memGlobal.getFinMem()){
+                memGlobal.actualizacionMemoriaEntera(valor,direccion);
+            }
+            if(direccion>=memLocal.getInicioMem() && direccion<memLocal.getFinMem()){
+                memLocal.actualizacionMemoriaEntera(valor,direccion);
+            }
+            if(direccion>=memTemporal.getInicioMem() && direccion<memTemporal.getFinMem()){
+                memTemporal.actualizacionMemoriaEntera(valor,direccion);
+            }
+            if(direccion>=memConstante.getInicioMem() && direccion<memConstante.getFinMem()){
+                memConstante.actualizacionMemoriaEntera(valor,direccion);
+            }
+        }
+
+        private static void actualizarMemoriaFlotante(float valor, int direccion){
+            if(direccion>=memGlobal.getInicioMem() && direccion<memGlobal.getFinMem()){
+                memGlobal.actualizacionMemoriaFlotante(valor,direccion);
+            }
+            if(direccion>=memLocal.getInicioMem() && direccion<memLocal.getFinMem()){
+                memLocal.actualizacionMemoriaFlotante(valor,direccion);
+            }
+            if(direccion>=memTemporal.getInicioMem() && direccion<memTemporal.getFinMem()){
+                memTemporal.actualizacionMemoriaFlotante(valor,direccion);
+            }
+            if(direccion>=memConstante.getInicioMem() && direccion<memConstante.getFinMem()){
+                memConstante.actualizacionMemoriaFlotante(valor,direccion);
+            }
+        }
+
+        private static int memType(int value) {
+            float result = (float)Math.floor((float)value / 10000.0);
+            if(result % 3 == 0){
+                return 2;
+            }else if(result % 3 == (1.0 % 3.0)){
+                return 0;
+            }else {
+                return 1;
+            }
+        }
+
     private static void asign(Token identificador, Objeto var){
         boolean error = true;
 
@@ -160,6 +233,7 @@ TOKEN:
 {
 	<cte_i: ( ["0"-"9"] )+ >                                            //34    int
 	|<cte_f: ( ["0"-"9"] )+("."(["0"-"9"])+)?  >                        //35    float
+	|<cte_c: ("\'")(~["\r","\'"])+("\'")>                               //36    char
 	|<cte_s: ("\"")(~["\r","\""])+("\"")>                               //36    string
 	|<ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9"] )*>     //37    id
 
@@ -253,10 +327,16 @@ Cuadruplo cuadActual = new Cuadruplo();
                  opIzq = OperandStack.pop();
                  tyIzq = TypeStack.pop();
                  opOPerator = OperatorStack.pop();
-                 if(tyIzq == tyDer){
+                 tyRes = cuboSemantico.getValidacion(opOPerator,tyDer,tyIzq);
+
+                 if(tyRes != -1){
                       cuadActual = new Cuadruplo();
                       cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                       cuadruplosArr.add(cuadActual);
+                 }
+                 else{
+                    OperandStack.push(-1);
+                    listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
                  }
              }
          }
@@ -297,6 +377,10 @@ Cuadruplo cuadActual = new Cuadruplo();
                     cuadruplosArr.add(cuadActual);
                     TypeStack.add(tyRes+34);
                }
+               else{
+                OperandStack.push(-1);
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
+               }
            }
        }
   })?
@@ -331,6 +415,10 @@ Cuadruplo cuadActual = new Cuadruplo();
                       cuadruplosArr.add(cuadActual);
                       TypeStack.add(tyRes+34);
                  }
+                 else{
+                    OperandStack.push(-1);
+                      listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
+                }
              }
          }
     })?
@@ -379,9 +467,17 @@ Cuadruplo cuadActual = new Cuadruplo();
                      opRes = memTemporal.asignacionMemoriaFlotante(0);
                      OperandStack.push(opRes);
                   }
+                  if(tyRes == 2){
+                   opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+                   OperandStack.push(opRes);
+                  }
                   cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                   cuadruplosArr.add(cuadActual);
                   TypeStack.add(tyRes+34);
+             }
+             else{
+                OperandStack.push(-1);
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
              }
          }
      }
@@ -413,9 +509,17 @@ Cuadruplo cuadActual = new Cuadruplo();
                         opRes = memTemporal.asignacionMemoriaFlotante(0);
                         OperandStack.push(opRes);
                      }
+                     if(tyRes == 2){
+                        opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+                        OperandStack.push(opRes);
+                       }
                      cuadActual.CuadruploSetComplete(token.beginLine,opOPerator-17,opIzq,opDer,opRes);
                      cuadruplosArr.add(cuadActual);
                      TypeStack.add(tyRes+34);
+                }
+                else{
+                    OperandStack.push(-1);
+                    listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
                 }
             }
         }
@@ -429,7 +533,10 @@ Cuadruplo cuadActual = new Cuadruplo();
 }
 
 void FACTOR():
-{}
+{
+int aux ,auxTipo;
+boolean neg=false;
+}
 {
 	<LPHARENTESIS>{
 	OperatorStack.push(token.kind);
@@ -438,7 +545,29 @@ void FACTOR():
 	<RPHARENTESIS>{
 	OperatorStack.pop();
 	}
-	| (<SUBSTRACTION>)? VARCTE()
+	| (<SUBSTRACTION>{
+	neg = true;
+	}
+	)? VARCTE(){
+                if(neg){
+                    aux = OperandStack.pop();
+                    auxTipo = TypeStack.pop();
+                    if(memType(aux)==0){
+                            int val = accesoMemoriaEntero(aux);
+                            val = val * -1;
+                            actualizarMemoriaEntero((int)(val),aux);
+                            neg=false;
+                        }
+                        else{
+                            float val = accesoMemoriaFlotante(aux);
+                            val = val * -1;
+                            actualizarMemoriaFlotante(val,aux);
+                            neg=false;
+                        }
+                        OperandStack.push(aux);
+                        TypeStack.push(auxTipo);
+                }
+                }
 }
 
 void VARCTE():
@@ -480,6 +609,9 @@ boolean end = false;
           if(tyRes == 1){
              opRes = memTemporal.asignacionMemoriaFlotante(0);
           }
+          if(tyRes == 2){
+          opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+         }
     	 cuadVer.CuadruploSetComplete(token.beginLine,20,opIzq,0,var.getSize());
     	 cuadruplosArr.add(cuadVer);
     	 opRes = opRes*-1;
@@ -495,7 +627,10 @@ boolean end = false;
    | <cte_f>{
         OperandStack.push(memConstante.asignacionMemoriaFlotante(Float.parseFloat(token.image)));
         TypeStack.push(token.kind);
-   }
+   }| <cte_c>{
+         OperandStack.push(memConstante.asignacionMemoriaChar((token.image).toCharArray()));
+         TypeStack.push(token.kind);
+    }
 }
 
 void CONDICION():
@@ -565,8 +700,6 @@ Token identificador;            //El nombre de la variable
 Objeto var = new Objeto();   //La variable con tipo y valor
 int iCuadAntes;
 int iSize;
-int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
-Cuadruplo cuadActual = new Cuadruplo();
 }
 {
 	<VECTOR> identificador =  <ID> <LBRACKET>{
@@ -594,17 +727,25 @@ Cuadruplo cuadActual = new Cuadruplo();
             var.setSize(iSize);
             decl(identificador,var);
            }
-
+        if(tipo== 2){
+            var.setDireccion(memGlobal.asignacionMemoriaCharDim(new char['0'],iSize));
+            var.setbDim(true);
+            var.setSize(iSize);
+            decl(identificador,var);
+        }
+           //System.out.println(var);
     } (<EQUAL>{
-        OperandStack.push(var.getDireccion());
-        TypeStack.push(var.getType()+34);
-        OperatorStack.push(token.kind);
-    } <LKEY>VARS_AUX1_1()<RKEY>)?
+              	    OperandStack.push(var.getDireccion());
+                      TypeStack.push(var.getType()+34);
+                      OperatorStack.push(token.kind);
+              	} <LKEY>{
+              	int cont = 0;
+              	} VARS_AUX1_1(var,cont) <RKEY>)?
 }
 
-void VARS_AUX1_1():
+void VARS_AUX1_1(Objeto var, int cont):
 {
-int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0;
+int opDer,opIzq,opOPerator, tyDer, tyIzq, tyRes ,opRes=0, dirCont=0;;
 Cuadruplo cuadActual = new Cuadruplo();
 }
 {
@@ -612,18 +753,54 @@ Cuadruplo cuadActual = new Cuadruplo();
        if(!(OperatorStack.isEmpty()) && !(OperandStack.size() < 2)){
            if (OperatorStack.peek() == 29)
            {
-               opDer = OperandStack.pop();
-               tyDer = TypeStack.pop();
-               opIzq = OperandStack.pop();
-               tyIzq = TypeStack.pop();
-               opOPerator = OperatorStack.pop();
-               if(tyIzq == tyDer){
-                    cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
+
+                opIzq = OperandStack.pop();
+                tyIzq = TypeStack.pop();
+                tyRes = var.getType();
+                if(tyRes == 0){
+                    opRes = memTemporal.asignacionMemoriaEntera(0);
+                }
+                if(tyRes == 1){
+                    opRes = memTemporal.asignacionMemoriaFlotante(0);
+                    //System.out.println(opRes);
+                }
+                if(tyRes == 2){
+                    opRes = memTemporal.asignacionMemoriaChar(new char['0']);
+                    //System.out.println(opRes);
+                }
+                cuadActual = new Cuadruplo();
+                dirCont = memConstante.asignacionMemoriaEntera(cont);
+                cuadActual.CuadruploSetComplete(token.beginLine,20,dirCont,0,var.getSize());
+                cuadruplosArr.add(cuadActual);
+                cuadActual = new Cuadruplo();
+                opRes = opRes*-1;
+                cuadActual.CuadruploSetComplete(token.beginLine,0,dirCont,var.getDireccion(),opRes);
+                cuadruplosArr.add(cuadActual);
+                OperandStack.push(opRes);
+                tyRes = tyRes+34;
+                TypeStack.add(tyRes);
+
+                 opDer = OperandStack.pop();
+                 tyDer = TypeStack.pop();
+                 opOPerator = OperatorStack.pop();
+                 tyRes = cuboSemantico.getValidacion(opOPerator,tyIzq,tyDer);
+
+                 if(tyRes != -1){
+                    cuadActual = new Cuadruplo();
+                    cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opIzq,opDer);
                     cuadruplosArr.add(cuadActual);
-               }
+                }
+                else{
+                listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
+                }
+
+
+
            }
        }
-    } (LOOKAHEAD(2) <COMA> VARS_AUX1_1())*
+    } (LOOKAHEAD(2) <COMA>{
+      OperatorStack.push(29);
+    } VARS_AUX1_1(var,cont+1))*
 }
 void VARS_AUX2():
 {
@@ -644,6 +821,11 @@ Cuadruplo cuadActual = new Cuadruplo();
         	var.setDireccion(memGlobal.asignacionMemoriaFlotante(0));
         	decl(identificador,var);
         }
+        if(tipo== 2){
+            var.setDireccion(memGlobal.asignacionMemoriaChar(new char['0']));
+            decl(identificador,var);
+        }
+        System.out.println(var);
 	} (<EQUAL>{
 	    OperandStack.push(var.getDireccion());
         TypeStack.push(var.getType()+34);
@@ -656,10 +838,16 @@ Cuadruplo cuadActual = new Cuadruplo();
                 tyDer = TypeStack.pop();
                 opIzq = OperandStack.pop();
                 tyIzq = TypeStack.pop();
-                opOPerator = OperatorStack.pop();
-                if(tyIzq == tyDer){
+                 opOPerator = OperatorStack.pop();
+                 System.out.println("hi ");
+                 tyRes = cuboSemantico.getValidacion(opOPerator,tyDer,tyIzq);
+
+                 if(tyRes != -1){
                      cuadActual.CuadruploSetIzqRes(token.beginLine,opOPerator-17,opDer,opIzq);
                      cuadruplosArr.add(cuadActual);
+                }
+                else{
+                    listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n Type mismatch.");
                 }
             }
         }
@@ -684,6 +872,19 @@ void MODULO():
 	    listaFunciones.get(listaFunciones.size()-1).setReturn_type(token.kind-6);
 	}
 	identificador = <ID> {
+	    int dir = 0;
+	    int i;
+                boolean end = false;
+                for(i = 0; i < listaFunciones.size() && !end; i++){
+                    if(listaFunciones.get(i).getId().equalsIgnoreCase(identificador.image)){
+                        dir = listaFunciones.get(i).getFuncStart();
+                        end = true;
+                    }
+                }
+                if(end){
+                    listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n La funcion " + identificador.image + " Ya se declaro");
+                }
+
 	    if(identificador.image.equalsIgnoreCase("main")){
 	        int pendingPos = PendingGOTOStack.pop();
 	        Cuadruplo cuadAux = cuadruplosArr.get(pendingPos);
@@ -774,6 +975,9 @@ int dir = 0;
                 dir = listaFunciones.get(i).getFuncStart();
                 end = true;
             }
+        }
+        if(!end){
+            listaErrores.add("Error found At line "+token.beginLine+", column "+token.beginColumn+"\n La funcion " + identificador.image + " invocada no se declaro");
         }
         cuadActual.CuadruploSetRes(token.beginLine,14,i-1);
         cuadruplosArr.add(cuadActual);

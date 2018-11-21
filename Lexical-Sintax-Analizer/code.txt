@@ -1,6 +1,4 @@
 Program test;
-int i, j, p;
-int vector arr[10];
 
 int fact(int x){
     if(x <= 2){

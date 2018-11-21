@@ -7,6 +7,7 @@ public class MaquinaVirtual {
     private Memoria memTemporal = new Memoria(70000,100000);
     private Memoria memConstante = new Memoria(100000,130000);
     private Vector<Function> listaFunciones;
+    private boolean dim = false;
 
     public MaquinaVirtual(ArrayList<Cuadruplo> cuadruplosArr, Memoria memGlobal,Memoria memLocal ,Memoria memTemporal ,Memoria memConstante, Vector<Function> listaFunciones){
         this.cuadruplosArr = cuadruplosArr;
@@ -125,7 +126,8 @@ public class MaquinaVirtual {
         boolean end = false;
         Cuadruplo cuadActual;
         int opDer,opIzq,opRes,operador,i=0;
-        float valDer,valIzq=0,valRes;
+        float valDer=0,valIzq=0,valRes;
+        char[] valDerC = new char[1], valIzqC = new char[1], valResC = new char[1];
 
         Function currentFunction = new Function();
         Stack<Integer> currentPosStack = new Stack<>();
@@ -145,7 +147,13 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
+                        opIzq=opIzq-1;
+                        if(memType(opIzq)==0){
+                            opIzq = accesoMemoriaEntero(opIzq);
+                        }
+                        else{
+                            opIzq = (int)accesoMemoriaFlotante(opIzq);
+                        }
                     }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
@@ -153,7 +161,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer= pilaRetorno.pop();
@@ -161,31 +175,46 @@ public class MaquinaVirtual {
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
-                        valIzq = accesoMemoriaFlotante(opIzq);
-                    }
+                    else if (memType(opIzq)==1){
+                            valIzq = accesoMemoriaFlotante(opIzq);
+                        }else{
+                            valIzqC = accesoMemoriaChar(opIzq);
+                        }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
-                        valDer = accesoMemoriaFlotante(opDer);
-                    }
+                    else if(memType(opDer)==1){
+                            valDer = accesoMemoriaFlotante(opDer);
+                        }else {
+                            valDerC = accesoMemoriaChar(opDer);
+                        }
                     opRes = cuadActual.getiResultado();
                     if(opRes<0){
                         opRes = opRes * -1;
                         if(memType(opRes)==0){
                             actualizarMemoriaEntero((int)(valIzq + opDer),opRes);
                         }
-                        else{
-                            actualizarMemoriaFlotante(valIzq + opDer,opRes);
+                        if (memType(opRes)==1){
+                            actualizarMemoriaFlotante((int)(valIzq + opDer),opRes);
+                        }
+                        if (memType(opRes)==2){
+                            int j = (int) (valIzq + opDer);
+                            actualizarMemoriaChar(("" + j).toCharArray(),opRes);
+                            System.out.println("+ "+j);
+                            System.out.println("hi "+("" + j).toCharArray());
                         }
                     }
                     else {
                         if(memType(opRes)==0){
                             actualizarMemoriaEntero((int)(valIzq + valDer),opRes);
                         }
-                        else{
-                            actualizarMemoriaFlotante(valIzq + valDer,opRes);
+                        else if(memType(opRes)==1){
+                                actualizarMemoriaFlotante((valIzq + valDer),opRes);
+                        }
+                        else if(memType(opRes)==2){
+                                char resultado[] = new char[1];
+                                resultado[0] = (char)((int)valIzqC[0]+ Math.abs((int)valIzqC[0] - (int)valDerC[0])  );
+                                actualizarMemoriaChar(resultado, opRes);
                         }
                     }
                     i++;
@@ -195,7 +224,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -203,22 +238,32 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    else if (memType(opIzq)==1){
                         valIzq = accesoMemoriaFlotante(opIzq);
+                    }else{
+                        valIzqC = accesoMemoriaChar(opIzq);
                     }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    else if(memType(opDer)==1){
                         valDer = accesoMemoriaFlotante(opDer);
+                    }else {
+                        valDerC = accesoMemoriaChar(opDer);
                     }
 
                     opRes = cuadActual.getiResultado();
@@ -226,8 +271,13 @@ public class MaquinaVirtual {
                     if(memType(opRes)==0){
                         actualizarMemoriaEntero((int)(valIzq - valDer),opRes);
                     }
-                    else{
-                        actualizarMemoriaFlotante(valIzq - valDer,opRes);
+                    else if(memType(opRes)==1){
+                        actualizarMemoriaFlotante((valIzq - valDer),opRes);
+                    }
+                    else if(memType(opRes)==2){
+                        char resultado[] = new char[1];
+                        resultado[0] = (char)((int)valIzqC[0] - Math.abs((int)valIzqC[0] - (int)valDerC[0])  );
+                        actualizarMemoriaChar(resultado, opRes);
                     }
                     i++;
                     break;
@@ -236,7 +286,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -244,34 +300,51 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    else if (memType(opIzq)==1){
                         valIzq = accesoMemoriaFlotante(opIzq);
+                    }else{
+                        valIzqC = accesoMemoriaChar(opIzq);
                     }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    else if(memType(opDer)==1){
                         valDer = accesoMemoriaFlotante(opDer);
+                    }else {
+                        valDerC = accesoMemoriaChar(opDer);
                     }
+
                     opRes = cuadActual.getiResultado();
                     if(valDer==0.0){
                         System.out.println("Error found At line " + cuadActual.getiNumero()+" division by ZERO");
                         end = true;
                         break;
                     }
+
                     if(memType(opRes)==0){
                         actualizarMemoriaEntero((int)(valIzq / valDer),opRes);
                     }
-                    else{
-                        actualizarMemoriaFlotante(valIzq / valDer,opRes);
+                    else if(memType(opRes)==1){
+                        actualizarMemoriaFlotante((valIzq / valDer),opRes);
+                    }
+                    else if(memType(opRes)==2){
+                        char resultado[] = new char[1];
+                        resultado[0] = (char)((int)valIzqC[0] / Math.abs((int)valIzqC[0] - (int)valDerC[0])  );
+                        actualizarMemoriaChar(resultado, opRes);
                     }
                     i++;
                     break;
@@ -280,7 +353,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -288,30 +367,49 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
                     if(memType(opIzq)==0){
                         valIzq = accesoMemoriaEntero(opIzq);
                     }
-                    else{
+                    else if (memType(opIzq)==1){
                         valIzq = accesoMemoriaFlotante(opIzq);
+                    }else{
+                        valIzqC = accesoMemoriaChar(opIzq);
                     }
                     if(memType(opDer)==0){
                         valDer = accesoMemoriaEntero(opDer);
                     }
-                    else{
+                    else if(memType(opDer)==1){
                         valDer = accesoMemoriaFlotante(opDer);
+                    }else {
+                        valDerC = accesoMemoriaChar(opDer);
                     }
+
                     opRes = cuadActual.getiResultado();
+
                     if(memType(opRes)==0){
                         actualizarMemoriaEntero((int)(valIzq * valDer),opRes);
                     }
-                    else{
-                        actualizarMemoriaFlotante(valIzq * valDer,opRes);
+                    else if(memType(opRes)==1){
+                        actualizarMemoriaFlotante((valIzq * valDer),opRes);
                     }
+                    else if(memType(opRes)==2){
+                        char resultado[] = new char[1];
+                        resultado[0] = (char)((int)valIzqC[0] * Math.abs((int)valIzqC[0] - (int)valDerC[0])  );
+                        actualizarMemoriaChar(resultado, opRes);
+                    }
+
+                  //  System.out.println("--Multiplicacion--\n"+valDer+" * "+valIzq);
                     i++;
                     break;
                 // ==
@@ -319,7 +417,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -327,8 +431,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -358,7 +468,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -366,8 +482,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -397,7 +519,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -405,8 +533,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -436,7 +570,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -444,8 +584,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -475,7 +621,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -483,8 +635,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -501,6 +659,7 @@ public class MaquinaVirtual {
                         valDer = accesoMemoriaFlotante(opDer);
                     }
                     opRes = cuadActual.getiResultado();
+                    //System.out.println("> " + (valIzq > valDer));
                     if(valIzq > valDer){
                         actualizarMemoriaEntero(1,opRes);
                     }
@@ -514,7 +673,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer== 23){
                         opDer = pilaRetorno.pop();
@@ -522,8 +687,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -553,7 +724,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer == 23){
                         opDer = pilaRetorno.pop();
@@ -561,8 +738,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -592,7 +775,13 @@ public class MaquinaVirtual {
                     opDer = cuadActual.getiDerecha();
                     if(opDer<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opDer = accesoMemoriaEntero(opDer*-1);
+                        opDer=opDer*-1;
+                        if(memType(opDer)==0){
+                            opDer = accesoMemoriaEntero(opDer);
+                        }
+                        else{
+                            opDer = (int)accesoMemoriaFlotante(opDer);
+                        }
                     }
                     if(opDer == 23){
                         opDer = pilaRetorno.pop();
@@ -600,8 +789,14 @@ public class MaquinaVirtual {
                     opIzq = cuadActual.getiIzquierda();
                     if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                        opIzq = accesoMemoriaEntero(opIzq*-1);
-                    }
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            else{
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                        }
                     if(opIzq == 23){
                         opIzq = pilaRetorno.pop();
                     }
@@ -633,31 +828,63 @@ public class MaquinaVirtual {
                     if(opIzq != 23){
                         if(opIzq<0){// si la direccion es negativa, se utilizo direccionamiento indirecto
                         //cargamos la dirrecion real al operando
-                            opIzq = accesoMemoriaEntero(opIzq*-1);
+                            opIzq=opIzq*-1;
+                            if(memType(opIzq)==0){
+                                opIzq = accesoMemoriaEntero(opIzq);
+                            }
+                            if(memType(opIzq)==1){
+                                opIzq = (int)accesoMemoriaFlotante(opIzq);
+                            }
+                            if(memType(opRes)==2){
+                                char[] aux = accesoMemoriaChar(opIzq);
+                                opIzq = (int)Integer.parseInt(new String(aux));
+                            }
                         }
+
                         if(opRes<0){
-                            opRes = accesoMemoriaEntero(opRes*-1);
+                            opRes=opRes*-1;
+
+                            if(memType(opRes)==0){
+                                opRes = accesoMemoriaEntero(opRes);
+                            }
+                            if(memType(opRes)==1) {
+                                opRes = (int) accesoMemoriaFlotante(opRes);
+                            }
+                            if(memType(opRes)==2) {
+                                    char[] aux = accesoMemoriaChar(opRes);
+                                    String aux2 = new String(aux);
+                                    System.out.println("aux2 " + aux2);
+                                    aux2 = aux2.replace('\'',' ').trim();
+                                    System.out.println("aux2 trimmed" + aux2);
+                                    opRes = Integer.parseInt(aux2);
+                                }
+                        }
+                        if(memType(opIzq)==0) {
+                            valIzq = accesoMemoriaEntero(opIzq);
+                        }
+                        if(memType(opIzq)==1) {
+                            valIzq = accesoMemoriaFlotante(opIzq);
+                        }
+                        if(memType(opIzq)==2) {
+                            valIzqC = accesoMemoriaChar(opIzq);
                         }
                         if(memType(opRes)==0){
-                            if(memType(opIzq)==0) {
-                                valIzq = accesoMemoriaEntero(opIzq);
-                                actualizarMemoriaEntero((int) valIzq, opRes);
-                            }else {
-                                System.out.println("\nError found at line "+cuadActual.getiNumero()+".\n\tType mismatch expected INT found FLOAT");
-                                i = cuadruplosArr.size()-1;
-                            }
+                            actualizarMemoriaEntero((int) valIzq, opRes);
+                            //System.out.println(opRes + " = " + (int)(valIzq));
                         }
-                        else{
-                            if(memType(opIzq)==1) {
-                                valIzq = accesoMemoriaFlotante(opIzq);
-                                actualizarMemoriaFlotante(valIzq,opRes);
-                            }else {
-                                System.out.println("\nError found at line " + cuadActual.getiNumero() + ".\n\tType mismatch expected FLOAT found INT");
-                                i = cuadruplosArr.size() - 1;
+                        if(memType(opRes)==1) {
+                            actualizarMemoriaFlotante(valIzq,opRes);
+                           // System.out.println(opRes +" = " + (valIzq));
                             }
+                        if(memType(opRes)==2){
+                            char resultado[] = new char[1];
+                            resultado[0] = (char)(((int)valIzqC[1]));
+                            actualizarMemoriaChar(resultado, opRes);
+                            System.out.println(opRes +" = " + (valIzq));
                         }
                     }else {
                         returnDir = pilaRetorno.pop();
+                        System.out.println("pilaRetorno " + returnDir);
                         if(memType(returnDir)==0){
                             valIzq = accesoMemoriaEntero(returnDir);
                             actualizarMemoriaEntero((int) valIzq,opRes);
@@ -673,12 +900,27 @@ public class MaquinaVirtual {
                 case 13:
                     opRes = cuadActual.getiResultado();
                     if(opRes<0){
-                        opRes = accesoMemoriaEntero(opRes*-1);
+                        opRes=opRes*-1;
+
+                        if(memType(opRes)==0){
+                            opRes = accesoMemoriaEntero(opRes);
+                        }
+                        if(memType(opRes)==1){
+                            opRes = (int)accesoMemoriaFlotante(opRes);
+                        }
+                        if(memType(opRes)==2){
+                            char[] aux = accesoMemoriaChar(opRes);
+                            String aux2 = new String(aux);
+                            System.out.println("aux2 " + aux2);
+                            aux2 = aux2.replace('\'',' ').trim();
+                            System.out.println("aux2 trimmed" + aux2);
+                            opRes = Integer.parseInt(aux2);
+                        }
                     }
                     if(memType(opRes)==0) {
                         System.out.print(Integer.toString(accesoMemoriaEntero(opRes)));
                     }else if(memType(opRes)==1){
-                        System.out.print(Float.toString(accesoMemoriaFlotante(opRes-20000)));
+                        System.out.print(Float.toString(accesoMemoriaFlotante(opRes)));
                     }else {
                         char txt[] = accesoMemoriaChar(opRes);
                         for(int x = 0; x < txt.length; x++) {
@@ -750,23 +992,30 @@ public class MaquinaVirtual {
                     }
                     else{
                         returnDir = memLocal.asignacionMemoriaFlotante(valorf);
+                        //returnDir = returnDir + 10000;
                     }
                     pilaRetorno.push(returnDir);
                     break;
                 // Param
                 case 16:
                     opRes = cuadActual.getiResultado();
+                    if(opRes == 23){
+                        opRes = pilaRetorno.pop();
+                        System.out.println("holly " + opRes);
+                    }
                     if(paramTypePointer < paramTypes.size()){
                         if(memType(opRes)==0) {
                             if(paramTypes.get(paramTypePointer)==0) {
                                 actualizarMemoriaEntero(accesoMemoriaEntero(opRes),paramList.get(paramTypePointer));
                             }else {
                                 if(paramTypes.get(paramTypePointer)==1) {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found INT");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found INT for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 }else {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found INT");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found INT for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 }
                             }
                         }else if(memType(opRes)==1) {
@@ -774,11 +1023,13 @@ public class MaquinaVirtual {
                                 actualizarMemoriaFlotante(accesoMemoriaFlotante(opRes), paramList.get(paramTypePointer));
                             } else {
                                 if (paramTypes.get(paramTypePointer) == 0) {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found FLOAT");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found FLOAT for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 } else {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found FLOAT");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected CHAR found FLOAT for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 }
                             }
                         }else {
@@ -786,11 +1037,13 @@ public class MaquinaVirtual {
                                 actualizarMemoriaChar(accesoMemoriaChar(opRes), paramList.get(paramTypePointer));
                             } else {
                                 if (paramTypes.get(paramTypePointer) == 0) {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found CHAR");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected INT found CHAR for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 } else {
-                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found CHAR");
+                                    System.out.println("Error found at line " + cuadActual.getiNumero() + ". Expected FLOAT found CHAR for Parameter");
                                     i = cuadruplosArr.size()-2;
+                                    end = true;
                                 }
                             }
                         }
@@ -827,11 +1080,23 @@ public class MaquinaVirtual {
                 // VER
                 case 20:
                     opIzq = cuadActual.getiIzquierda();
-                    valIzq = accesoMemoriaEntero(opIzq);
+                    if(memType(opIzq)==0){
+                        valIzq = accesoMemoriaEntero(opIzq);
+                    }
+                    else{
+                        valIzq = accesoMemoriaFlotante(opIzq);
+                    }
                     opDer = cuadActual.getiDerecha();
                     opRes = cuadActual.getiResultado();
-                    if(valIzq<opDer || valIzq>=opRes){
+                    if(valIzq<opDer){
                         System.out.println("Error found At line " + cuadActual.getiNumero()+" Array out of bounds");
+                        System.out.println("Value " + valIzq+ " is less than bound " + opDer);
+                        end = true;
+                        break;
+                    }
+                    if(valIzq>=opRes){
+                        System.out.println("Error found At line " + cuadActual.getiNumero()+" Array out of bounds");
+                        System.out.println("Value " + valIzq+ " is greather or equal to bound " + opRes);
                         end = true;
                         break;
                     }

@@ -13,9 +13,9 @@ public class Memoria implements Cloneable{
         this.finMem = finMem;
 
         tamMem = (finMem - inicioMem) / 3;
-        memoriaEntera = new int[tamMem];
-        memoriaFlotante = new float[tamMem];
-        memoriaChar = new char[tamMem][1];
+        memoriaEntera = new int[tamMem+1];
+        memoriaFlotante = new float[tamMem+1];
+        memoriaChar = new char[tamMem+1][1];
 
         enteroAct = 0;
         flotanteActual = 0;
@@ -43,6 +43,7 @@ public class Memoria implements Cloneable{
     public int asignacionMemoriaEnteraDim(int value, int size){
         int i = 0;
         while(i<size){
+           // System.out.println("Dir dim Entera" + (inicioMem + enteroAct));
             memoriaEntera[enteroAct] = value;
             enteroAct = enteroAct + 1;
             i++;
@@ -53,11 +54,23 @@ public class Memoria implements Cloneable{
     public int asignacionMemoriaFlotanteDim(float value, int size){
         int i = 0;
         while(i<size){
+            //System.out.println("Dir dim Flotante" + (inicioMem +tamMem+ flotanteActual));
             memoriaFlotante[flotanteActual] = value;
             flotanteActual++;
             i++;
         }
-        return inicioMem + tamMem + flotanteActual - 1 - size;
+        return inicioMem + tamMem + flotanteActual  - size;
+    }
+
+    public int asignacionMemoriaCharDim(char[] value, int size){
+        int i = 0;
+        while(i<size){
+            //System.out.println("Dir dim Flotante" + (inicioMem +tamMem+ flotanteActual));
+            memoriaChar[flotanteActual] = value;
+            charActual++;
+            i++;
+        }
+        return inicioMem + (2*tamMem) + charActual  - size;
     }
 
     public void actualizacionMemoriaEntera(int value , int direccion){
@@ -65,11 +78,11 @@ public class Memoria implements Cloneable{
     }
 
     public void actualizacionMemoriaFlotante(float value, int direccion){
-        memoriaFlotante[direccion-inicioMem] = value;
+        memoriaFlotante[direccion-inicioMem-tamMem] = value;
     }
 
     public void actualiacionMemoriaChar(char[] value, int direccion){
-        memoriaChar[direccion-inicioMem] = value;
+        memoriaChar[direccion-inicioMem-tamMem*2] = value;
     }
 
     public int accesoMemoriaEntera(int direccion){

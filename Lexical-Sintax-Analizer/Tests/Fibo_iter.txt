@@ -4,7 +4,7 @@ int main(){
 
     int actual, ant1=1, ant2=1, i;
     i=2;
-    while(i<10){
+    while(i<6){
         actual = ant1 + ant2;
         ant2 = ant1;
         ant1 = actual;

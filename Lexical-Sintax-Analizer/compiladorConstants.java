@@ -79,9 +79,11 @@ public interface compiladorConstants {
   /** RegularExpression Id. */
   int cte_f = 35;
   /** RegularExpression Id. */
-  int cte_s = 36;
+  int cte_c = 36;
   /** RegularExpression Id. */
-  int ID = 37;
+  int cte_s = 37;
+  /** RegularExpression Id. */
+  int ID = 38;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -124,6 +126,7 @@ public interface compiladorConstants {
     "\"\\\"\"",
     "<cte_i>",
     "<cte_f>",
+    "<cte_c>",
     "<cte_s>",
     "<ID>",
     "\" \"",
@@ -131,7 +134,7 @@ public interface compiladorConstants {
     "\"\\r\"",
     "\"\\r\\n\"",
     "\"\\t\"",
-    "<token of kind 43>",
+    "<token of kind 44>",
   };
 
 }

@@ -3,7 +3,10 @@ Program Fact_rec;
 void aWeboPrro(){
     print("Ya jalisco!");
 }
+
+
 int fact_rec(int valor){
+    print(valor+"\n");
     if(valor==0){
         return 1;
     }
@@ -12,11 +15,23 @@ int fact_rec(int valor){
     }
  }
 
+int val(int valor){
+    if(valor==0){
+        return 1;
+    }
+    else{
+    print((valor * -1)+"\n");
+        return (valor * -1);
+    }
+ }
+
 
 int main(){
     int res;
-    res = fact_rec(3);
+    int neg = -5;
+    res = fact_rec((val(neg)));
     print("Resultado = "+res+"\n");
+    aWeboPrro();
 
     return 0;
  }

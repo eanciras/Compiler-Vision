@@ -10,7 +10,7 @@ int fiboRec(int valor){
  }
 
 int main(){
-    int c = 4;
+    int c = 6;
     c = fiboRec(c);
     print("Resultado = "+c);
 

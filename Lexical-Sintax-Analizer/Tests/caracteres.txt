@@ -1,0 +1,20 @@
+Program caracteres;
+
+void aWeboPrro(){
+    print("Ya jalisco!");
+}
+
+
+
+int main(){
+    char vato = 'a';
+    char waifu = 'c';
+    char vector vec[10] = {'c','a','r'};
+
+    print("imprimiendo caracter "+vato+"\n");
+    print("imprimiendo caracter "+waifu+"\n");
+    print("imprimiendo caracter "+vec[0]+"\n");
+
+
+    return 0;
+ }
